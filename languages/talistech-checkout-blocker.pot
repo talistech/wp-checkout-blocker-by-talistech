@@ -1,0 +1,48 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Checkout Blocker by Talistech 1.0.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: talistech-checkout-blocker\n"
+
+msgid "Checkout is not available for this account. Please contact support."
+msgstr ""
+
+msgid "Checkout Blocker"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Block rules"
+msgstr ""
+
+msgid "Blocked email rules"
+msgstr ""
+
+msgid "Blocked full names"
+msgstr ""
+
+msgid "Blocked billing addresses"
+msgstr ""
+
+msgid "Behavior"
+msgstr ""
+
+msgid "Customer notice"
+msgstr ""
+
+msgid "Admin notifications"
+msgstr ""
+
+msgid "Force logout"
+msgstr ""
+
+msgid "Logout redirect"
+msgstr ""
+
+msgid "Save settings"
+msgstr ""
+
+msgid "Destroy sessions"
+msgstr ""
