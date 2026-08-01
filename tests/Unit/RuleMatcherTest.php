@@ -6,6 +6,7 @@ namespace Talistech\CheckoutBlocker\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Talistech\CheckoutBlocker\RuleMatcher;
+use Talistech\CheckoutBlocker\Settings;
 
 final class RuleMatcherTest extends TestCase
 {
@@ -117,5 +118,27 @@ final class RuleMatcherTest extends TestCase
 
         self::assertNull($matcher->match(['email' => 'not-an-email']));
         self::assertNotNull($matcher->match(['email' => 'valid@example.com']));
+    }
+
+    public function testDocumentedWildcardExamplesMatch(): void
+    {
+        $emailMatcher = new RuleMatcher(['email_rules' => "test-*@example.net\n*@*.example.com"]);
+        $addressMatcher = new RuleMatcher(['address_rules' => 'Keringstraat 7|*|BE']);
+
+        self::assertNotNull($emailMatcher->match(['email' => 'test-123@example.net']));
+        self::assertNotNull($emailMatcher->match(['email' => 'user@shop.example.com']));
+        self::assertNotNull($addressMatcher->match([
+            'address_1' => 'Keringstraat 7',
+            'postcode' => '9506',
+            'country' => 'BE',
+        ]));
+    }
+
+    public function testSettingsNormalizeRulesForAdminAndCliUsage(): void
+    {
+        self::assertSame('blocked@example.com', Settings::normalizeRule('BLOCKED@EXAMPLE.COM', 'email_rules'));
+        self::assertSame('jose de smet', Settings::normalizeRule('José  De Smet', 'name_rules'));
+        self::assertSame('keringstraat 7|9506|be', Settings::normalizeRule('Keringstraat 7 | 950 6 | BE', 'address_rules'));
+        self::assertNull(Settings::normalizeRule('invalid', 'address_rules'));
     }
 }

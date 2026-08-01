@@ -47,17 +47,25 @@ final class Notifications
         $lines = [
             __('A checkout was blocked for a user matching the blocklist.', 'talistech-checkout-blocker'),
             '',
-            'Reason: ' . $match['type'] . ' match (' . $match['rule'] . ')',
-            'Name: ' . trim(($context['first_name'] ?? '') . ' ' . ($context['last_name'] ?? '')),
-            'Email: ' . ($context['email'] ?? ''),
-            'Address: ' . ($context['address_1'] ?? ''),
-            'Postcode: ' . ($context['postcode'] ?? ''),
-            'Country: ' . ($context['country'] ?? ''),
-            'IP: ' . ($context['ip'] ?? ''),
-            'User-Agent: ' . ($context['user_agent'] ?? ''),
-            'When: ' . current_time('mysql'),
-            'URL: ' . ($context['url'] ?? home_url('/')),
-            'Site: ' . home_url('/'),
+            sprintf(
+                /* translators: 1: rule type, 2: matching rule */
+                __('Reason: %1$s match (%2$s)', 'talistech-checkout-blocker'),
+                $match['type'],
+                $match['rule']
+            ),
+            self::detailLine(
+                __('Name', 'talistech-checkout-blocker'),
+                trim(($context['first_name'] ?? '') . ' ' . ($context['last_name'] ?? ''))
+            ),
+            self::detailLine(__('Email', 'talistech-checkout-blocker'), $context['email'] ?? ''),
+            self::detailLine(__('Address', 'talistech-checkout-blocker'), $context['address_1'] ?? ''),
+            self::detailLine(__('Postcode', 'talistech-checkout-blocker'), $context['postcode'] ?? ''),
+            self::detailLine(__('Country', 'talistech-checkout-blocker'), $context['country'] ?? ''),
+            self::detailLine(__('IP', 'talistech-checkout-blocker'), $context['ip'] ?? ''),
+            self::detailLine(__('User-Agent', 'talistech-checkout-blocker'), $context['user_agent'] ?? ''),
+            self::detailLine(__('When', 'talistech-checkout-blocker'), current_time('mysql')),
+            self::detailLine(__('URL', 'talistech-checkout-blocker'), $context['url'] ?? home_url('/')),
+            self::detailLine(__('Site', 'talistech-checkout-blocker'), home_url('/')),
         ];
 
         wp_mail($recipients, $subject, implode("\n", $lines), ['Content-Type: text/plain; charset=UTF-8']);
@@ -88,6 +96,16 @@ final class Notifications
          * @param array<string, string> $context
          */
         $filtered = apply_filters('talistech_checkout_blocker_notification_recipients', $recipients, $context);
-        return array_values(array_unique(array_filter(array_map('sanitize_email', (array) $filtered))));
+        $filtered = array_map('sanitize_email', (array) $filtered);
+
+        return array_values(array_unique(array_filter(
+            $filtered,
+            static fn(string $email): bool => is_email($email) !== false
+        )));
+    }
+
+    private static function detailLine(string $label, string $value): string
+    {
+        return $label . ': ' . $value;
     }
 }

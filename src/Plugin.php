@@ -23,7 +23,6 @@ final class Plugin
         $sessions = new Sessions();
         $admin = new Admin($sessions);
 
-        add_action('admin_init', [Admin::class, 'registerFields']);
         $admin->register();
         (new WooCommerce($matcher, new Notifications()))->register();
         CLI::register();
@@ -36,7 +35,7 @@ final class Plugin
         }
 
         echo '<div class="notice notice-error"><p>' . esc_html__(
-            'Checkout Blocker by Talistech requires WooCommerce 10.9 or newer and is currently inactive.',
+            'Checkout Blocker by Talistech BV requires WooCommerce 10.9 or newer and is currently inactive.',
             'talistech-checkout-blocker'
         ) . '</p></div>';
     }
@@ -48,7 +47,7 @@ final class Plugin
         }
 
         echo '<div class="notice notice-warning"><p>' . esc_html__(
-            'The legacy Talistech Checkout Blocker is active. Deactivate it before using this plugin to avoid duplicate checkout validation.',
+            'The legacy Talistech BV Checkout Blocker is active. Deactivate it before using this plugin to avoid duplicate checkout validation.',
             'talistech-checkout-blocker'
         ) . '</p></div>';
     }

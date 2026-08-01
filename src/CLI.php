@@ -80,14 +80,19 @@ final class CLI
 
         $settings = Settings::get();
         $key = $type . '_rules';
+        $normalized = Settings::normalizeRule($value, $key);
+        if ($normalized === null) {
+            \WP_CLI::error('Rule is invalid for type ' . $type . '.');
+        }
+
         $lines = array_values(array_filter(array_map('trim', preg_split('/\R+/', (string) $settings[$key]) ?: [])));
         if ($remove) {
-            $lines = array_values(array_filter($lines, static fn(string $line): bool => strtolower($line) !== strtolower($value)));
-        } elseif (! in_array($value, $lines, true)) {
-            $lines[] = $value;
+            $lines = array_values(array_filter($lines, static fn(string $line): bool => $line !== $normalized));
+        } elseif (! in_array($normalized, $lines, true)) {
+            $lines[] = $normalized;
         }
         $settings[$key] = implode("\n", $lines);
         update_option(Settings::OPTION_KEY, Settings::sanitize($settings));
-        \WP_CLI::success(($remove ? 'Removed: ' : 'Added: ') . $value);
+        \WP_CLI::success(($remove ? 'Removed: ' : 'Added: ') . $normalized);
     }
 }

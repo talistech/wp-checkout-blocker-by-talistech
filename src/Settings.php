@@ -99,6 +99,30 @@ final class Settings
         return $output;
     }
 
+    public static function normalizeRule(string $value, string $type): ?string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return null;
+        }
+
+        if ($type === 'email_rules') {
+            $value = strtolower($value);
+            return RuleMatcher::isValidEmailRule($value) ? $value : null;
+        }
+
+        if ($type === 'name_rules') {
+            $value = RuleMatcher::normalizeText($value);
+            return $value !== '' ? $value : null;
+        }
+
+        if ($type === 'address_rules') {
+            return RuleMatcher::normalizeAddressRule($value);
+        }
+
+        return null;
+    }
+
     /**
      * @return array{0: string, 1: list<string>}
      */
@@ -114,27 +138,15 @@ final class Settings
                 continue;
             }
 
-            if ($type === 'email_rules') {
-                $line = strtolower($line);
-                if (! RuleMatcher::isValidEmailRule($line)) {
-                    $invalid[] = $line;
-                    continue;
+            $normalized = self::normalizeRule($line, $type);
+            if ($normalized === null) {
+                if ($type !== 'name_rules') {
+                    $invalid[] = $type === 'email_rules' ? strtolower($line) : $line;
                 }
-            } elseif ($type === 'name_rules') {
-                $line = RuleMatcher::normalizeText($line);
-                if ($line === '') {
-                    continue;
-                }
-            } else {
-                $original = $line;
-                $line = RuleMatcher::normalizeAddressRule($line) ?? '';
-                if ($line === '') {
-                    $invalid[] = $original;
-                    continue;
-                }
+                continue;
             }
 
-            $valid[] = $line;
+            $valid[] = $normalized;
         }
 
         return [implode("\n", array_values(array_unique($valid))), array_values(array_unique($invalid))];
