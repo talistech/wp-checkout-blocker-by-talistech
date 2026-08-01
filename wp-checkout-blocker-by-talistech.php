@@ -3,9 +3,11 @@
  * Plugin Name: Checkout Blocker by Talistech BV
  * Plugin URI: https://github.com/talistech/wp-checkout-blocker-by-talistech
  * Description: Block WooCommerce checkout by email, name or billing address, with full support for shortcode and block-based checkout.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Talistech BV
  * Author URI: https://www.talistech.com
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Requires at least: 7.0
  * Requires PHP: 8.1
  * Requires Plugins: woocommerce
@@ -26,7 +28,7 @@ if (! defined('ABSPATH')) {
 
 const TCB_PLUGIN_FILE = __FILE__;
 const TCB_PLUGIN_DIR = __DIR__;
-const TCB_VERSION = '1.1.0';
+const TCB_VERSION = '1.1.1';
 
 require_once TCB_PLUGIN_DIR . '/src/RuleMatcher.php';
 require_once TCB_PLUGIN_DIR . '/src/Settings.php';

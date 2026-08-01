@@ -133,4 +133,4 @@ Bug reports and focused pull requests are welcome through the [GitHub repository
 
 Copyright © 2026 Talistech BV.
 
-Licensed under the [GNU General Public License v2.0 or later](https://www.gnu.org/licenses/gpl-2.0.html).
+Licensed under the [GNU General Public License v2.0 or later](https://www.gnu.org/licenses/gpl-2.0.html). The complete license text is included with every source and plugin release.

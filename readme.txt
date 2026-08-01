@@ -5,7 +5,7 @@ Requires at least: 7.0
 Requires PHP: 8.1
 Requires Plugins: woocommerce
 Tested up to: 7.0
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,6 +82,10 @@ The notification can include the customer's name, email address, billing address
 Use `wp talistech-cb list --type=email`, `add`, `remove`, and `destroy_sessions` to manage rules and exact-email sessions.
 
 == Changelog ==
+
+= 1.1.1 =
+
+* Added the complete GPLv2 license text and explicit license metadata to the main plugin file.
 
 = 1.1.0 =
 
