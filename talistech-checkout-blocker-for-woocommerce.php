@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Older directory names share the same PHP API and settings. Do not load two copies.
-$legacyActive = array_intersect(
+$talistechLegacyActive = array_intersect(
 	array(
 		'checkout-blocker-by-talistech/checkout-blocker-by-talistech.php',
 		'wp-checkout-blocker-by-talistech/wp-checkout-blocker-by-talistech.php',
@@ -37,14 +37,14 @@ $legacyActive = array_intersect(
 		is_multisite() ? array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) : array()
 	)
 );
-if ( $legacyActive || defined( __NAMESPACE__ . '\\TCB_PLUGIN_FILE' ) ) {
+if ( $talistechLegacyActive || defined( __NAMESPACE__ . '\\TCB_PLUGIN_FILE' ) ) {
 	register_activation_hook(
 		__FILE__,
 		static function (): void {
 			wp_die( esc_html__( 'Deactivate the older Talistech Checkout Blocker installation before activating this version. Your settings are retained.', 'talistech-checkout-blocker-for-woocommerce' ) );
 		}
 	);
-	$duplicateNotice = static function (): void {
+	$talistechDuplicateNotice = static function (): void {
 		$screen = get_current_screen();
 		if ( ! $screen || ! in_array( $screen->id, array( 'plugins', 'plugins-network' ), true ) ) {
 			return;
@@ -58,12 +58,12 @@ if ( $legacyActive || defined( __NAMESPACE__ . '\\TCB_PLUGIN_FILE' ) ) {
 			'talistech-checkout-blocker-for-woocommerce'
 		) . '</p></div>';
 	};
-	add_action( 'admin_notices', $duplicateNotice );
-	add_action( 'network_admin_notices', $duplicateNotice );
-	unset( $duplicateNotice, $legacyActive );
+	add_action( 'admin_notices', $talistechDuplicateNotice );
+	add_action( 'network_admin_notices', $talistechDuplicateNotice );
+	unset( $talistechDuplicateNotice, $talistechLegacyActive );
 	return;
 }
-unset( $legacyActive );
+unset( $talistechLegacyActive );
 
 const TCB_PLUGIN_FILE = __FILE__;
 const TCB_PLUGIN_DIR  = __DIR__;

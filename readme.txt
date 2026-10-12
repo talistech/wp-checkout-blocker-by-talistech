@@ -137,4 +137,4 @@ Use `wp talistech-cb list --type=email`, `add`, `remove`, and `destroy_sessions`
 
 = 1.2.1 =
 
-The directory and main filename change. Deactivate the old installation before activating this ZIP. Existing settings are retained. Verify your rules, then remove the old plugin folder through your hosting file manager or SFTP. Do not use WordPress Delete on the old copy: its uninstall removes the shared settings.
+The directory and main filename change. Deactivate the old copy, activate this ZIP and verify your retained settings. Remove the old folder via SFTP or your file manager. Do not use WordPress Delete on the old copy: it removes the shared settings.
