@@ -29,8 +29,8 @@ final class Admin {
 
 	public function addMenu(): void {
 		add_options_page(
-			__( 'Checkout Blocker', 'checkout-blocker-by-talistech' ),
-			__( 'Checkout Blocker', 'checkout-blocker-by-talistech' ),
+			__( 'Talistech Checkout Blocker', 'talistech-checkout-blocker-for-woocommerce' ),
+			__( 'Talistech Checkout Blocker', 'talistech-checkout-blocker-for-woocommerce' ),
 			'manage_options',
 			Settings::PAGE_SLUG,
 			array( $this, 'renderPage' )
@@ -64,14 +64,14 @@ final class Admin {
 		array_unshift(
 			$links,
 			'<a href="' . esc_url( admin_url( 'options-general.php?page=' . Settings::PAGE_SLUG ) ) . '">' .
-			esc_html__( 'Settings', 'checkout-blocker-by-talistech' ) . '</a>'
+			esc_html__( 'Settings', 'talistech-checkout-blocker-for-woocommerce' ) . '</a>'
 		);
 		return $links;
 	}
 
 	public function destroySessions(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_die( esc_html__( 'You are not allowed to do this.', 'checkout-blocker-by-talistech' ) );
+			wp_die( esc_html__( 'You are not allowed to do this.', 'talistech-checkout-blocker-for-woocommerce' ) );
 		}
 		check_admin_referer( 'talistech_checkout_blocker_destroy_sessions' );
 
@@ -103,13 +103,13 @@ final class Admin {
 		<div class="wrap tcb-admin">
 			<header class="tcb-hero">
 				<div class="tcb-hero__content">
-					<span class="tcb-eyebrow"><?php esc_html_e( 'WooCommerce protection by Talistech', 'checkout-blocker-by-talistech' ); ?></span>
-					<h1><?php esc_html_e( 'Checkout Blocker', 'checkout-blocker-by-talistech' ); ?></h1>
-					<p><?php esc_html_e( 'Stop selected customers from placing an order using server-side email, name or billing address rules.', 'checkout-blocker-by-talistech' ); ?></p>
+					<span class="tcb-eyebrow"><?php esc_html_e( 'Independent extension for WooCommerce', 'talistech-checkout-blocker-for-woocommerce' ); ?></span>
+					<h1><?php esc_html_e( 'Talistech Checkout Blocker for WooCommerce', 'talistech-checkout-blocker-for-woocommerce' ); ?></h1>
+					<p><?php esc_html_e( 'Stop selected customers from placing an order using server-side email, name or billing address rules.', 'talistech-checkout-blocker-for-woocommerce' ); ?></p>
 				</div>
-				<div class="tcb-hero__meta" aria-label="<?php esc_attr_e( 'Compatibility', 'checkout-blocker-by-talistech' ); ?>">
-					<span><?php esc_html_e( 'Server-side validation', 'checkout-blocker-by-talistech' ); ?></span>
-					<span><?php esc_html_e( 'Classic + Checkout Blocks', 'checkout-blocker-by-talistech' ); ?></span>
+				<div class="tcb-hero__meta" aria-label="<?php esc_attr_e( 'Compatibility', 'talistech-checkout-blocker-for-woocommerce' ); ?>">
+					<span><?php esc_html_e( 'Server-side validation', 'talistech-checkout-blocker-for-woocommerce' ); ?></span>
+					<span><?php esc_html_e( 'Classic + Checkout Blocks', 'talistech-checkout-blocker-for-woocommerce' ); ?></span>
 				</div>
 			</header>
 
@@ -119,7 +119,7 @@ final class Admin {
 					<?php
 					printf(
 						/* translators: %d: number of customer accounts whose sessions were destroyed. */
-						esc_html__( 'Sessions destroyed for %d user(s).', 'checkout-blocker-by-talistech' ),
+						esc_html__( 'Sessions destroyed for %d user(s).', 'talistech-checkout-blocker-for-woocommerce' ),
 						esc_html( (string) $sessionsDestroyed )
 					);
 					?>
@@ -135,8 +135,8 @@ final class Admin {
 							<div class="tcb-card__header">
 								<span class="tcb-step" aria-hidden="true">01</span>
 								<div>
-									<h2 id="tcb-rules-title"><?php esc_html_e( 'Block rules', 'checkout-blocker-by-talistech' ); ?></h2>
-									<p><?php esc_html_e( 'Add one rule per line. A match in any one of the three lists blocks checkout.', 'checkout-blocker-by-talistech' ); ?></p>
+									<h2 id="tcb-rules-title"><?php esc_html_e( 'Block rules', 'talistech-checkout-blocker-for-woocommerce' ); ?></h2>
+									<p><?php esc_html_e( 'Add one rule per line. A match in any one of the three lists blocks checkout.', 'talistech-checkout-blocker-for-woocommerce' ); ?></p>
 								</div>
 							</div>
 							<table class="form-table tcb-form-table" role="presentation">
@@ -148,8 +148,8 @@ final class Admin {
 							<div class="tcb-card__header">
 								<span class="tcb-step" aria-hidden="true">02</span>
 								<div>
-									<h2 id="tcb-behavior-title"><?php esc_html_e( 'Customer experience', 'checkout-blocker-by-talistech' ); ?></h2>
-									<p><?php esc_html_e( 'Choose what customers see and what should happen after a match.', 'checkout-blocker-by-talistech' ); ?></p>
+									<h2 id="tcb-behavior-title"><?php esc_html_e( 'Customer experience', 'talistech-checkout-blocker-for-woocommerce' ); ?></h2>
+									<p><?php esc_html_e( 'Choose what customers see and what should happen after a match.', 'talistech-checkout-blocker-for-woocommerce' ); ?></p>
 								</div>
 							</div>
 							<table class="form-table tcb-form-table" role="presentation">
@@ -158,31 +158,31 @@ final class Admin {
 						</section>
 
 						<div class="tcb-save-bar">
-							<p><?php esc_html_e( 'Changes apply to the next checkout attempt.', 'checkout-blocker-by-talistech' ); ?></p>
-							<?php submit_button( __( 'Save settings', 'checkout-blocker-by-talistech' ), 'primary', 'submit', false ); ?>
+							<p><?php esc_html_e( 'Changes apply to the next checkout attempt.', 'talistech-checkout-blocker-for-woocommerce' ); ?></p>
+							<?php submit_button( __( 'Save settings', 'talistech-checkout-blocker-for-woocommerce' ), 'primary', 'submit', false ); ?>
 						</div>
 					</form>
 				</main>
 
-				<aside class="tcb-sidebar" aria-label="<?php esc_attr_e( 'Checkout Blocker help', 'checkout-blocker-by-talistech' ); ?>">
+				<aside class="tcb-sidebar" aria-label="<?php esc_attr_e( 'Checkout Blocker help', 'talistech-checkout-blocker-for-woocommerce' ); ?>">
 					<section class="tcb-card tcb-guide">
-						<h2><?php esc_html_e( 'Quick start', 'checkout-blocker-by-talistech' ); ?></h2>
+						<h2><?php esc_html_e( 'Quick start', 'talistech-checkout-blocker-for-woocommerce' ); ?></h2>
 						<ol>
-							<li><?php esc_html_e( 'Paste one or more rules into the matching list.', 'checkout-blocker-by-talistech' ); ?></li>
-							<li><?php esc_html_e( 'Set the notice shown to blocked customers.', 'checkout-blocker-by-talistech' ); ?></li>
-							<li><?php esc_html_e( 'Save, then test with a private browser window.', 'checkout-blocker-by-talistech' ); ?></li>
+							<li><?php esc_html_e( 'Paste one or more rules into the matching list.', 'talistech-checkout-blocker-for-woocommerce' ); ?></li>
+							<li><?php esc_html_e( 'Set the notice shown to blocked customers.', 'talistech-checkout-blocker-for-woocommerce' ); ?></li>
+							<li><?php esc_html_e( 'Save, then test with a private browser window.', 'talistech-checkout-blocker-for-woocommerce' ); ?></li>
 						</ol>
-						<p class="tcb-callout"><?php esc_html_e( 'Rules are normalized when saved, so casing, accents and repeated spaces do not cause accidental misses.', 'checkout-blocker-by-talistech' ); ?></p>
+						<p class="tcb-callout"><?php esc_html_e( 'Rules are normalized when saved, so casing, accents and repeated spaces do not cause accidental misses.', 'talistech-checkout-blocker-for-woocommerce' ); ?></p>
 					</section>
 
 					<section class="tcb-card tcb-session-card">
-						<span class="tcb-eyebrow"><?php esc_html_e( 'Account access', 'checkout-blocker-by-talistech' ); ?></span>
-						<h2><?php esc_html_e( 'Destroy sessions', 'checkout-blocker-by-talistech' ); ?></h2>
-						<p><?php esc_html_e( 'Invalidate sessions for customers with an exact email rule. Administrators and shop managers are protected. Domain and wildcard rules are ignored.', 'checkout-blocker-by-talistech' ); ?></p>
+						<span class="tcb-eyebrow"><?php esc_html_e( 'Account access', 'talistech-checkout-blocker-for-woocommerce' ); ?></span>
+						<h2><?php esc_html_e( 'Destroy sessions', 'talistech-checkout-blocker-for-woocommerce' ); ?></h2>
+						<p><?php esc_html_e( 'Invalidate sessions for customers with an exact email rule. Administrators and shop managers are protected. Domain and wildcard rules are ignored.', 'talistech-checkout-blocker-for-woocommerce' ); ?></p>
 						<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 							<input type="hidden" name="action" value="talistech_checkout_blocker_destroy_sessions">
 							<?php wp_nonce_field( 'talistech_checkout_blocker_destroy_sessions' ); ?>
-							<?php submit_button( __( 'Destroy exact-email sessions', 'checkout-blocker-by-talistech' ), 'secondary', 'submit', false ); ?>
+							<?php submit_button( __( 'Destroy exact-email sessions', 'talistech-checkout-blocker-for-woocommerce' ), 'secondary', 'tcb_destroy_sessions', false ); ?>
 						</form>
 					</section>
 				</aside>
@@ -196,73 +196,73 @@ final class Admin {
 
 		self::addTextAreaField(
 			'email_rules',
-			__( 'Blocked email addresses', 'checkout-blocker-by-talistech' ),
-			__( 'Block one address, an entire domain, or an email pattern.', 'checkout-blocker-by-talistech' ),
+			__( 'Blocked email addresses', 'talistech-checkout-blocker-for-woocommerce' ),
+			__( 'Block one address, an entire domain, or an email pattern.', 'talistech-checkout-blocker-for-woocommerce' ),
 			array(
-				array( __( 'Exact email', 'checkout-blocker-by-talistech' ), 'blocked@example.com' ),
-				array( __( 'Entire domain', 'checkout-blocker-by-talistech' ), '@example.com' ),
-				array( __( 'Wildcard', 'checkout-blocker-by-talistech' ), 'test-*@example.net' ),
+				array( __( 'Exact email', 'talistech-checkout-blocker-for-woocommerce' ), 'blocked@example.com' ),
+				array( __( 'Entire domain', 'talistech-checkout-blocker-for-woocommerce' ), '@example.com' ),
+				array( __( 'Wildcard', 'talistech-checkout-blocker-for-woocommerce' ), 'test-*@example.net' ),
 			)
 		);
 		self::addTextAreaField(
 			'name_rules',
-			__( 'Blocked full names', 'checkout-blocker-by-talistech' ),
-			__( 'Match the complete billing first and last name. Accents, casing and repeated spaces are normalized.', 'checkout-blocker-by-talistech' ),
+			__( 'Blocked full names', 'talistech-checkout-blocker-for-woocommerce' ),
+			__( 'Match the complete billing first and last name. Accents, casing and repeated spaces are normalized.', 'talistech-checkout-blocker-for-woocommerce' ),
 			array(
-				array( __( 'Exact name', 'checkout-blocker-by-talistech' ), 'Jan Jansen' ),
-				array( __( 'Any first name', 'checkout-blocker-by-talistech' ), '* De Smet' ),
+				array( __( 'Exact name', 'talistech-checkout-blocker-for-woocommerce' ), 'Jan Jansen' ),
+				array( __( 'Any first name', 'talistech-checkout-blocker-for-woocommerce' ), '* De Smet' ),
 			)
 		);
 		self::addTextAreaField(
 			'address_rules',
-			__( 'Blocked billing addresses', 'checkout-blocker-by-talistech' ),
-			__( 'Use street and number, postcode, and two-letter country code separated by | characters.', 'checkout-blocker-by-talistech' ),
+			__( 'Blocked billing addresses', 'talistech-checkout-blocker-for-woocommerce' ),
+			__( 'Use street and number, postcode, and two-letter country code separated by | characters.', 'talistech-checkout-blocker-for-woocommerce' ),
 			array(
-				array( __( 'Exact address', 'checkout-blocker-by-talistech' ), 'Keringstraat 7|9506|BE' ),
-				array( __( 'Wildcard street', 'checkout-blocker-by-talistech' ), '*laan 10|2000|BE' ),
+				array( __( 'Exact address', 'talistech-checkout-blocker-for-woocommerce' ), 'Keringstraat 7|9506|BE' ),
+				array( __( 'Wildcard street', 'talistech-checkout-blocker-for-woocommerce' ), '*laan 10|2000|BE' ),
 			)
 		);
 
 		add_settings_section( self::BEHAVIOR_SECTION, '', '__return_false', Settings::PAGE_SLUG );
 		add_settings_field(
 			'notice_text',
-			__( 'Customer notice', 'checkout-blocker-by-talistech' ),
+			__( 'Customer notice', 'talistech-checkout-blocker-for-woocommerce' ),
 			array( self::class, 'renderTextField' ),
 			Settings::PAGE_SLUG,
 			self::BEHAVIOR_SECTION,
 			array(
 				'key'         => 'notice_text',
 				'label_for'   => 'tcb-notice-text',
-				'description' => __( 'Shown at checkout when an order is blocked.', 'checkout-blocker-by-talistech' ),
+				'description' => __( 'Shown at checkout when an order is blocked.', 'talistech-checkout-blocker-for-woocommerce' ),
 			)
 		);
 		add_settings_field(
 			'notify_admins',
-			__( 'Admin notifications', 'checkout-blocker-by-talistech' ),
+			__( 'Admin notifications', 'talistech-checkout-blocker-for-woocommerce' ),
 			array( self::class, 'renderCheckbox' ),
 			Settings::PAGE_SLUG,
 			self::BEHAVIOR_SECTION,
 			array(
 				'key'       => 'notify_admins',
 				'label_for' => 'tcb-notify-admins',
-				'label'     => __( 'Email administrators with personal checkout details when a block occurs. Limited to one per IP per ten minutes and sixty per site per hour.', 'checkout-blocker-by-talistech' ),
+				'label'     => __( 'Email administrators with personal checkout details when a block occurs. Limited to one per IP per ten minutes and sixty per site per hour.', 'talistech-checkout-blocker-for-woocommerce' ),
 			)
 		);
 		add_settings_field(
 			'force_logout',
-			__( 'Force logout', 'checkout-blocker-by-talistech' ),
+			__( 'Force logout', 'talistech-checkout-blocker-for-woocommerce' ),
 			array( self::class, 'renderCheckbox' ),
 			Settings::PAGE_SLUG,
 			self::BEHAVIOR_SECTION,
 			array(
 				'key'       => 'force_logout',
 				'label_for' => 'tcb-force-logout',
-				'label'     => __( 'Log out signed-in customers whose account email matches a rule. Administrators and shop managers are protected.', 'checkout-blocker-by-talistech' ),
+				'label'     => __( 'Log out signed-in customers whose account email matches a rule. Administrators and shop managers are protected.', 'talistech-checkout-blocker-for-woocommerce' ),
 			)
 		);
 		add_settings_field(
 			'logout_redirect',
-			__( 'Logout redirect', 'checkout-blocker-by-talistech' ),
+			__( 'Logout redirect', 'talistech-checkout-blocker-for-woocommerce' ),
 			array( self::class, 'renderTextField' ),
 			Settings::PAGE_SLUG,
 			self::BEHAVIOR_SECTION,
@@ -270,7 +270,7 @@ final class Admin {
 				'key'         => 'logout_redirect',
 				'label_for'   => 'tcb-logout-redirect',
 				'type'        => 'url',
-				'description' => __( 'Local URL used after a forced logout.', 'checkout-blocker-by-talistech' ),
+				'description' => __( 'Local URL used after a forced logout.', 'talistech-checkout-blocker-for-woocommerce' ),
 			)
 		);
 	}
@@ -369,7 +369,7 @@ final class Admin {
 		}
 		?>
 		<div class="tcb-examples">
-			<span class="tcb-examples__label"><?php esc_html_e( 'Examples', 'checkout-blocker-by-talistech' ); ?></span>
+			<span class="tcb-examples__label"><?php esc_html_e( 'Examples', 'talistech-checkout-blocker-for-woocommerce' ); ?></span>
 			<?php foreach ( $examples as $example ) : ?>
 				<span class="tcb-example">
 					<span><?php echo esc_html( $example[0] ); ?></span>

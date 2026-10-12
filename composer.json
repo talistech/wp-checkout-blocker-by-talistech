@@ -1,6 +1,6 @@
 {
-  "name": "talistech/wp-checkout-blocker-by-talistech",
-  "description": "Checkout Blocker by Talistech.",
+  "name": "talistech/talistech-checkout-blocker-for-woocommerce",
+  "description": "Talistech Checkout Blocker for WooCommerce.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
   "authors": [

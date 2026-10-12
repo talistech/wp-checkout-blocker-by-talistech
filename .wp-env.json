@@ -1,8 +1,8 @@
 {
-  "core": "https://wordpress.org/wordpress-7.1.2.zip",
+  "core": "https://wordpress.org/wordpress-7.1.3.zip",
   "phpVersion": "8.3",
   "plugins": [
-    "https://downloads.wordpress.org/plugin/woocommerce.11.1.2.zip",
+    "https://downloads.wordpress.org/plugin/woocommerce.11.2.1.zip",
     "https://downloads.wordpress.org/plugin/plugin-check.latest-stable.zip"
   ],
   "port": 8894,
@@ -15,6 +15,6 @@
   },
   "mappings": {
     "wp-content/mu-plugins/tcb-local-mail.php": "./tests/integration/mu-plugins/tcb-local-mail.php",
-    "wp-content/plugins/checkout-blocker-by-talistech": "."
+    "wp-content/plugins/talistech-checkout-blocker-for-woocommerce": "."
   }
 }

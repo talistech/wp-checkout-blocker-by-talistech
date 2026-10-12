@@ -184,6 +184,6 @@ final class WooCommerce {
 
 	private function notice(): string {
 		$notice = (string) ( Settings::get()['notice_text'] ?? '' );
-		return $notice !== '' ? $notice : __( 'Checkout is not available for this account. Please contact support.', 'checkout-blocker-by-talistech' );
+		return $notice !== '' ? $notice : __( 'Checkout is not available for this account. Please contact support.', 'talistech-checkout-blocker-for-woocommerce' );
 	}
 }

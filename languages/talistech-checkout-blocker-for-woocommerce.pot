@@ -2,281 +2,230 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Checkout Blocker by Talistech 1.2.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/checkout-blocker-by-talistech\n"
+"Project-Id-Version: Talistech Checkout Blocker for WooCommerce 1.2.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talistech-checkout-blocker-for-woocommerce\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T08:57:19+00:00\n"
+"POT-Creation-Date: 2026-10-12T20:23:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
-"X-Domain: checkout-blocker-by-talistech\n"
+"X-Domain: talistech-checkout-blocker-for-woocommerce\n"
 
 #. Plugin Name of the plugin
-#: checkout-blocker-by-talistech.php
-msgid "Checkout Blocker by Talistech"
-msgstr ""
-
-#. Author URI of the plugin
-#: checkout-blocker-by-talistech.php
-msgid "https://www.talistech.com"
+#: talistech-checkout-blocker-for-woocommerce.php
+#: src/Admin.php:107
+msgid "Talistech Checkout Blocker for WooCommerce"
 msgstr ""
 
 #. Description of the plugin
-#: checkout-blocker-by-talistech.php
+#: talistech-checkout-blocker-for-woocommerce.php
 msgid "Block WooCommerce checkout by email, name or billing address, with full support for shortcode and block-based checkout."
 msgstr ""
 
 #. Author of the plugin
-#: checkout-blocker-by-talistech.php
+#: talistech-checkout-blocker-for-woocommerce.php
 msgid "Talistech"
 msgstr ""
 
-#: src/Admin.php:32
-#: src/Admin.php:33
-#: src/Admin.php:103
-#: src/Admin.php:32
-#: src/Admin.php:33
-#: src/Admin.php:103
-msgid "Checkout Blocker"
+#. Author URI of the plugin
+#: talistech-checkout-blocker-for-woocommerce.php
+msgid "https://www.talistech.com"
 msgstr ""
 
-#: src/Admin.php:63
-#: src/Admin.php:63
+#: src/Admin.php:32
+#: src/Admin.php:33
+msgid "Talistech Checkout Blocker"
+msgstr ""
+
+#: src/Admin.php:67
 msgid "Settings"
 msgstr ""
 
-#: src/Admin.php:70
-#: src/Admin.php:70
+#: src/Admin.php:74
 msgid "You are not allowed to do this."
 msgstr ""
 
-#: src/Admin.php:102
-#: src/Admin.php:102
-msgid "WooCommerce protection by Talistech"
+#: src/Admin.php:106
+msgid "Independent extension for WooCommerce"
 msgstr ""
 
-#: src/Admin.php:104
-#: src/Admin.php:104
+#: src/Admin.php:108
 msgid "Stop selected customers from placing an order using server-side email, name or billing address rules."
 msgstr ""
 
-#: src/Admin.php:106
-#: src/Admin.php:106
+#: src/Admin.php:110
 msgid "Compatibility"
 msgstr ""
 
-#: src/Admin.php:107
-#: src/Admin.php:107
+#: src/Admin.php:111
 msgid "Server-side validation"
 msgstr ""
 
-#: src/Admin.php:108
-#: src/Admin.php:108
+#: src/Admin.php:112
 msgid "Classic + Checkout Blocks"
 msgstr ""
 
 #. translators: %d: number of customer accounts whose sessions were destroyed.
-#: src/Admin.php:118
-#: src/Admin.php:118
+#: src/Admin.php:122
 #, php-format
 msgid "Sessions destroyed for %d user(s)."
 msgstr ""
 
-#: src/Admin.php:134
-#: src/Admin.php:134
+#: src/Admin.php:138
 msgid "Block rules"
 msgstr ""
 
-#: src/Admin.php:135
-#: src/Admin.php:135
+#: src/Admin.php:139
 msgid "Add one rule per line. A match in any one of the three lists blocks checkout."
 msgstr ""
 
-#: src/Admin.php:147
-#: src/Admin.php:147
+#: src/Admin.php:151
 msgid "Customer experience"
 msgstr ""
 
-#: src/Admin.php:148
-#: src/Admin.php:148
+#: src/Admin.php:152
 msgid "Choose what customers see and what should happen after a match."
 msgstr ""
 
-#: src/Admin.php:157
-#: src/Admin.php:157
+#: src/Admin.php:161
 msgid "Changes apply to the next checkout attempt."
 msgstr ""
 
-#: src/Admin.php:158
-#: src/Admin.php:158
+#: src/Admin.php:162
 msgid "Save settings"
 msgstr ""
 
-#: src/Admin.php:163
-#: src/Admin.php:163
+#: src/Admin.php:167
 msgid "Checkout Blocker help"
 msgstr ""
 
-#: src/Admin.php:165
-#: src/Admin.php:165
+#: src/Admin.php:169
 msgid "Quick start"
 msgstr ""
 
-#: src/Admin.php:167
-#: src/Admin.php:167
+#: src/Admin.php:171
 msgid "Paste one or more rules into the matching list."
 msgstr ""
 
-#: src/Admin.php:168
-#: src/Admin.php:168
+#: src/Admin.php:172
 msgid "Set the notice shown to blocked customers."
 msgstr ""
 
-#: src/Admin.php:169
-#: src/Admin.php:169
+#: src/Admin.php:173
 msgid "Save, then test with a private browser window."
 msgstr ""
 
-#: src/Admin.php:171
-#: src/Admin.php:171
+#: src/Admin.php:175
 msgid "Rules are normalized when saved, so casing, accents and repeated spaces do not cause accidental misses."
 msgstr ""
 
-#: src/Admin.php:175
-#: src/Admin.php:175
+#: src/Admin.php:179
 msgid "Account access"
 msgstr ""
 
-#: src/Admin.php:176
-#: src/Admin.php:176
+#: src/Admin.php:180
 msgid "Destroy sessions"
 msgstr ""
 
-#: src/Admin.php:177
-#: src/Admin.php:177
+#: src/Admin.php:181
 msgid "Invalidate sessions for customers with an exact email rule. Administrators and shop managers are protected. Domain and wildcard rules are ignored."
 msgstr ""
 
-#: src/Admin.php:181
-#: src/Admin.php:181
+#: src/Admin.php:185
 msgid "Destroy exact-email sessions"
 msgstr ""
 
-#: src/Admin.php:195
-#: src/Admin.php:195
+#: src/Admin.php:199
 msgid "Blocked email addresses"
 msgstr ""
 
-#: src/Admin.php:196
-#: src/Admin.php:196
+#: src/Admin.php:200
 msgid "Block one address, an entire domain, or an email pattern."
 msgstr ""
 
-#: src/Admin.php:198
-#: src/Admin.php:198
+#: src/Admin.php:202
 msgid "Exact email"
 msgstr ""
 
-#: src/Admin.php:199
-#: src/Admin.php:199
+#: src/Admin.php:203
 msgid "Entire domain"
 msgstr ""
 
-#: src/Admin.php:200
-#: src/Admin.php:200
+#: src/Admin.php:204
 msgid "Wildcard"
 msgstr ""
 
-#: src/Admin.php:205
-#: src/Admin.php:205
+#: src/Admin.php:209
 msgid "Blocked full names"
 msgstr ""
 
-#: src/Admin.php:206
-#: src/Admin.php:206
+#: src/Admin.php:210
 msgid "Match the complete billing first and last name. Accents, casing and repeated spaces are normalized."
 msgstr ""
 
-#: src/Admin.php:208
-#: src/Admin.php:208
+#: src/Admin.php:212
 msgid "Exact name"
 msgstr ""
 
-#: src/Admin.php:209
-#: src/Admin.php:209
+#: src/Admin.php:213
 msgid "Any first name"
 msgstr ""
 
-#: src/Admin.php:214
-#: src/Admin.php:214
+#: src/Admin.php:218
 msgid "Blocked billing addresses"
 msgstr ""
 
-#: src/Admin.php:215
-#: src/Admin.php:215
+#: src/Admin.php:219
 msgid "Use street and number, postcode, and two-letter country code separated by | characters."
 msgstr ""
 
-#: src/Admin.php:217
-#: src/Admin.php:217
+#: src/Admin.php:221
 msgid "Exact address"
 msgstr ""
 
-#: src/Admin.php:218
-#: src/Admin.php:218
+#: src/Admin.php:222
 msgid "Wildcard street"
 msgstr ""
 
-#: src/Admin.php:225
-#: src/Admin.php:225
+#: src/Admin.php:229
 msgid "Customer notice"
 msgstr ""
 
-#: src/Admin.php:232
-#: src/Admin.php:232
+#: src/Admin.php:236
 msgid "Shown at checkout when an order is blocked."
 msgstr ""
 
-#: src/Admin.php:237
-#: src/Admin.php:237
+#: src/Admin.php:241
 msgid "Admin notifications"
 msgstr ""
 
-#: src/Admin.php:244
-#: src/Admin.php:244
+#: src/Admin.php:248
 msgid "Email administrators with personal checkout details when a block occurs. Limited to one per IP per ten minutes and sixty per site per hour."
 msgstr ""
 
-#: src/Admin.php:249
-#: src/Admin.php:249
+#: src/Admin.php:253
 msgid "Force logout"
 msgstr ""
 
-#: src/Admin.php:256
-#: src/Admin.php:256
+#: src/Admin.php:260
 msgid "Log out signed-in customers whose account email matches a rule. Administrators and shop managers are protected."
 msgstr ""
 
-#: src/Admin.php:261
-#: src/Admin.php:261
+#: src/Admin.php:265
 msgid "Logout redirect"
 msgstr ""
 
-#: src/Admin.php:269
-#: src/Admin.php:269
+#: src/Admin.php:273
 msgid "Local URL used after a forced logout."
 msgstr ""
 
-#: src/Admin.php:368
-#: src/Admin.php:368
+#: src/Admin.php:372
 msgid "Examples"
 msgstr ""
 
-#: src/Notifications.php:50
-#: src/Settings.php:131
 #: src/Notifications.php:50
 #: src/Settings.php:131
 msgid "email"
@@ -284,132 +233,113 @@ msgstr ""
 
 #: src/Notifications.php:51
 #: src/Settings.php:132
-#: src/Notifications.php:51
-#: src/Settings.php:132
 msgid "name"
 msgstr ""
 
-#: src/Notifications.php:52
-#: src/Settings.php:133
 #: src/Notifications.php:52
 #: src/Settings.php:133
 msgid "address"
 msgstr ""
 
 #: src/Notifications.php:55
-#: src/Notifications.php:55
 msgid "unknown user"
 msgstr ""
 
 #. translators: 1: matching rule type, 2: customer email or name.
-#: src/Notifications.php:58
 #: src/Notifications.php:58
 #, php-format
 msgid "Blocked checkout (%1$s): %2$s"
 msgstr ""
 
 #: src/Notifications.php:64
-#: src/Notifications.php:64
 msgid "A checkout was blocked for a user matching the blocklist."
 msgstr ""
 
 #. translators: 1: rule type, 2: matching rule
-#: src/Notifications.php:68
 #: src/Notifications.php:68
 #, php-format
 msgid "Reason: %1$s match (%2$s)"
 msgstr ""
 
 #: src/Notifications.php:73
-#: src/Notifications.php:73
 msgid "Name"
 msgstr ""
 
-#: src/Notifications.php:76
 #: src/Notifications.php:76
 msgid "Account email"
 msgstr ""
 
 #: src/Notifications.php:77
-#: src/Notifications.php:77
 msgid "Email"
 msgstr ""
 
-#: src/Notifications.php:78
 #: src/Notifications.php:78
 msgid "Address"
 msgstr ""
 
 #: src/Notifications.php:79
-#: src/Notifications.php:79
 msgid "Postcode"
 msgstr ""
 
-#: src/Notifications.php:80
 #: src/Notifications.php:80
 msgid "Country"
 msgstr ""
 
 #: src/Notifications.php:81
-#: src/Notifications.php:81
 msgid "IP"
 msgstr ""
 
-#: src/Notifications.php:82
 #: src/Notifications.php:82
 msgid "User-Agent"
 msgstr ""
 
 #: src/Notifications.php:83
-#: src/Notifications.php:83
 msgid "When"
 msgstr ""
 
-#: src/Notifications.php:84
 #: src/Notifications.php:84
 msgid "URL"
 msgstr ""
 
 #: src/Notifications.php:85
-#: src/Notifications.php:85
 msgid "Site"
 msgstr ""
 
-#: src/Plugin.php:43
-#: src/Plugin.php:43
+#: src/Plugin.php:45
 msgid "This shop uses checkout block rules containing email addresses, names or billing addresses. For signed-in customers, both account and billing email addresses are checked. Rules are kept until an administrator removes them or uninstalls the plugin."
 msgstr ""
 
-#: src/Plugin.php:43
-#: src/Plugin.php:43
+#: src/Plugin.php:45
 msgid "If administrator notifications are enabled, matching checkout details (including account and billing email addresses, name, address, IP address, user agent, time and checkout URL without query parameters) are sent through this site's WordPress mail system. Mail retention is controlled by the shop and its mail provider. The plugin does not transmit data to Talistech or use an external tracking service."
 msgstr ""
 
-#: src/Plugin.php:43
-#: src/Plugin.php:43
+#: src/Plugin.php:45
 msgid "Notification limits store keyed IP hashes with a ten-minute validity and an hourly counter. Expired hashes are pruned on the next notification attempt, and all limiter data is removed when the plugin is uninstalled. Adapt this text to the shop's actual purpose, retention periods and privacy practices."
 msgstr ""
 
-#: src/Plugin.php:52
-#: src/Plugin.php:52
-msgid "Checkout Blocker by Talistech requires WooCommerce 10.9 or newer and is currently inactive."
+#: src/Plugin.php:54
+msgid "Talistech Checkout Blocker for WooCommerce is currently inactive. Activate WooCommerce 10.9 or newer to enable checkout blocking."
 msgstr ""
 
-#: src/Plugin.php:63
-#: src/Plugin.php:63
+#: src/Plugin.php:65
 msgid "The legacy Talistech BV Checkout Blocker is active. Deactivate it before using this plugin to avoid duplicate checkout validation."
 msgstr ""
 
 #: src/Settings.php:29
-#: src/WooCommerce.php:159
-#: src/Settings.php:29
-#: src/WooCommerce.php:159
+#: src/WooCommerce.php:187
 msgid "Checkout is not available for this account. Please contact support."
 msgstr ""
 
 #. translators: 1: rule type, 2: invalid values
-#: src/Settings.php:140
-#: src/Settings.php:140
+#: src/Settings.php:141
 #, php-format
 msgid "Some invalid %1$s rules were skipped: %2$s"
+msgstr ""
+
+#: talistech-checkout-blocker-for-woocommerce.php:44
+msgid "Deactivate the older Talistech Checkout Blocker installation before activating this version. Your settings are retained."
+msgstr ""
+
+#: talistech-checkout-blocker-for-woocommerce.php:56
+msgid "Another Talistech Checkout Blocker installation is already loaded. Deactivate the older installation before using this one. Existing settings are retained."
 msgstr ""

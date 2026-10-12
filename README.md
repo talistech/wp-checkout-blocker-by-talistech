@@ -1,8 +1,10 @@
-# Checkout Blocker by Talistech
+# Talistech Checkout Blocker for WooCommerce
 
-Checkout Blocker by Talistech prevents selected customers from placing WooCommerce orders. It validates checkout data on the server against rules for email addresses, full billing names, and billing addresses.
+Talistech Checkout Blocker for WooCommerce prevents selected customers from placing WooCommerce orders. It validates checkout data on the server against rules for email addresses, full billing names, and billing addresses.
 
-It supports both the classic WooCommerce checkout and the block-based Checkout.
+It supports classic WooCommerce checkout, Checkout Blocks and payment of existing orders.
+
+This independent Talistech extension is not affiliated with or endorsed by WooCommerce or Automattic. WooCommerce and its associated designs are trademarks of Automattic Inc.
 
 ## Features
 
@@ -31,7 +33,7 @@ All checkout decisions are made server-side. Disabling JavaScript or using the C
 1. Download the latest release ZIP from the GitHub Releases page.
 2. In WordPress, open **Plugins → Add New Plugin → Upload Plugin**.
 3. Select the ZIP, install it, and activate the plugin.
-4. Open **Settings → Checkout Blocker**.
+4. Open **Settings → Talistech Checkout Blocker**.
 5. Add your rules, configure the customer message, and save.
 6. Test the result in a private browser window before using the rules in production.
 
@@ -112,7 +114,7 @@ wp talistech-cb destroy_sessions
 
 ## Privacy and security
 
-The plugin does not send data to Talistech or another external service. Rules and settings are stored in the WordPress options table. If admin notifications are enabled, checkout details are sent through the site's configured WordPress mail system.
+The plugin has no telemetry or external API connection and sends no data to Talistech. Optional mail may pass through the site's configured mail provider. Rules and settings are stored in the WordPress options table. If admin notifications are enabled, checkout details are sent through the site's configured WordPress mail system.
 
 Only administrators with the `manage_options` capability can change settings or destroy sessions. Settings are sanitized when saved, and session destruction is protected by a WordPress nonce.
 
@@ -140,13 +142,13 @@ npm run check:plugin
 npm run env:stop
 ```
 
-The isolated environment uses port 8894; the version matrix uses 8896–8898 and package verification uses 8895. Development dependencies are pinned in lockfiles, with overrides for security fixes. A documented postinstall patch switches wp-env 11.16 to the supported simple-git 4 named factory; it affects development tooling only. See [release verification](docs/VERIFICATION.md) for the compatibility matrix and [WordPress.org publication](docs/PUBLISHING.md) for submission instructions. Build output is `dist/checkout-blocker-by-talistech-1.2.0.zip`. Builds use an explicit runtime-file allowlist and fixed ZIP metadata for reproducible results.
+The isolated environment uses port 8894; the version matrix uses 8896–8898 and package verification uses 8895. Development dependencies are pinned in lockfiles, with overrides for security fixes. A documented postinstall patch switches wp-env 11.16 to the supported simple-git 4 named factory; it affects development tooling only. See [release verification](docs/VERIFICATION.md) for the compatibility matrix and [WordPress.org publication](docs/PUBLISHING.md) for submission instructions. Build output is `dist/talistech-checkout-blocker-for-woocommerce.zip`. Builds use an explicit runtime-file allowlist and fixed ZIP metadata for reproducible results.
 
 The coding rules retain existing callback names, PSR-4 file paths and comparison style and do not require redundant function comments on typed methods. WordPress escaping, sanitization, nonce, database and internationalization checks remain enabled.
 
 ## Lifecycle
 
-The release changes the plugin folder and main file to `checkout-blocker-by-talistech`. Existing installations require the manual migration described in [the publication guide](docs/PUBLISHING.md#release-identity). Option keys, WP-CLI commands and public hooks remain unchanged. `RuleMatcher::match()` additionally accepts `account_email`; its result format is unchanged. Notification recipient filters receive this additional context field. The translation domain now matches the directory slug, `checkout-blocker-by-talistech`.
+Version 1.2.1 uses the folder and main filename `talistech-checkout-blocker-for-woocommerce`. Existing installations under either historical directory need the manual migration described in [the publication guide](docs/PUBLISHING.md#existing-installations). Option keys, WP-CLI commands, callback names and public hooks remain unchanged. Email matching also accepts the trusted order account email for existing order-payment validation. The translation domain is `talistech-checkout-blocker-for-woocommerce`.
 
 Network activation initializes every site, and newly created sites are initialized when the plugin is network active. Deactivation retains settings. Uninstall removes this plugin's settings and notification limiter data on all multisite sites, including legacy notification transients. Customer accounts, sessions unrelated to the explicit session command and orders are not deleted.
 

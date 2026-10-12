@@ -1,20 +1,21 @@
 {
-  "name": "checkout-blocker-by-talistech",
-  "version": "1.2.0",
+  "name": "talistech-checkout-blocker-for-woocommerce",
+  "version": "1.2.1",
   "private": true,
   "scripts": {
-    "env:start": "wp-env start && wp-env run cli wp plugin activate checkout-blocker-by-talistech",
+    "env:start": "wp-env start && wp-env run cli wp plugin activate talistech-checkout-blocker-for-woocommerce",
     "env:stop": "wp-env stop",
-    "test:integration": "wp-env run cli wp eval-file wp-content/plugins/checkout-blocker-by-talistech/tests/integration/safety.php && python3 tests/integration/checkout.py",
+    "test:integration": "wp-env run cli wp eval-file wp-content/plugins/talistech-checkout-blocker-for-woocommerce/tests/integration/safety.php && python3 tests/integration/checkout.py",
     "check:plugin": "python3 bin/verify-package.py",
-    "i18n": "wp-env run cli wp i18n make-pot wp-content/plugins/checkout-blocker-by-talistech wp-content/plugins/checkout-blocker-by-talistech/languages/checkout-blocker-by-talistech.pot --exclude=vendor,node_modules,tests,dist,verification,bin,docs",
+    "i18n": "wp-env run cli wp i18n make-pot wp-content/plugins/talistech-checkout-blocker-for-woocommerce wp-content/plugins/talistech-checkout-blocker-for-woocommerce/languages/talistech-checkout-blocker-for-woocommerce.pot --exclude=vendor,node_modules,tests,dist,verification,bin,docs",
     "build": "python3 bin/build-release.py",
     "test:matrix": "python3 bin/verify-matrix.py",
     "postinstall": "node bin/patch-wp-env.cjs",
     "test:package": "python3 bin/verify-package.py",
-    "check:plugin:source": "wp-env run cli wp plugin check checkout-blocker-by-talistech --format=strict-json --exclude-directories=tests,dist,bin,docs,verification --exclude-files=.gitignore,.nvmrc,.wp-env.json,phpcs.xml.dist,phpunit.xml.dist,.phpunit.result.cache",
+    "check:plugin:source": "wp-env run cli wp plugin check talistech-checkout-blocker-for-woocommerce --format=strict-json --exclude-directories=tests,dist,bin,docs,verification --exclude-files=.gitignore,.nvmrc,.wp-env.json,phpcs.xml.dist,phpunit.xml.dist,.phpunit.result.cache",
     "test:upgrade": "python3 bin/verify-upgrade.py",
-    "build:svn": "python3 bin/build-wordpress-org-stage.py"
+    "build:svn": "python3 bin/build-wordpress-org-stage.py",
+    "test:multisite": "python3 bin/verify-multisite.py"
   },
   "devDependencies": {
     "@wordpress/env": "11.16.0"

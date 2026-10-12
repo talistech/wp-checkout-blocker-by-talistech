@@ -47,42 +47,42 @@ final class Notifications {
 		$this->sent = true;
 
 		$label = match ( $match['type'] ) {
-			RuleMatcher::EMAIL => __( 'email', 'checkout-blocker-by-talistech' ),
-			RuleMatcher::NAME => __( 'name', 'checkout-blocker-by-talistech' ),
-			default => __( 'address', 'checkout-blocker-by-talistech' ),
+			RuleMatcher::EMAIL => __( 'email', 'talistech-checkout-blocker-for-woocommerce' ),
+			RuleMatcher::NAME => __( 'name', 'talistech-checkout-blocker-for-woocommerce' ),
+			default => __( 'address', 'talistech-checkout-blocker-for-woocommerce' ),
 		};
 		$who     = $email !== '' ? $email : trim( ( $context['first_name'] ?? '' ) . ' ' . ( $context['last_name'] ?? '' ) );
-		$who     = $who !== '' ? $who : __( 'unknown user', 'checkout-blocker-by-talistech' );
+		$who     = $who !== '' ? $who : __( 'unknown user', 'talistech-checkout-blocker-for-woocommerce' );
 		$subject = sprintf(
 			/* translators: 1: matching rule type, 2: customer email or name. */
-			__( 'Blocked checkout (%1$s): %2$s', 'checkout-blocker-by-talistech' ),
+			__( 'Blocked checkout (%1$s): %2$s', 'talistech-checkout-blocker-for-woocommerce' ),
 			$label,
 			$who
 		);
 
 		$lines = array(
-			__( 'A checkout was blocked for a user matching the blocklist.', 'checkout-blocker-by-talistech' ),
+			__( 'A checkout was blocked for a user matching the blocklist.', 'talistech-checkout-blocker-for-woocommerce' ),
 			'',
 			sprintf(
 				/* translators: 1: rule type, 2: matching rule */
-				__( 'Reason: %1$s match (%2$s)', 'checkout-blocker-by-talistech' ),
+				__( 'Reason: %1$s match (%2$s)', 'talistech-checkout-blocker-for-woocommerce' ),
 				$match['type'],
 				$match['rule']
 			),
 			self::detailLine(
-				__( 'Name', 'checkout-blocker-by-talistech' ),
+				__( 'Name', 'talistech-checkout-blocker-for-woocommerce' ),
 				trim( ( $context['first_name'] ?? '' ) . ' ' . ( $context['last_name'] ?? '' ) )
 			),
-			self::detailLine( __( 'Account email', 'checkout-blocker-by-talistech' ), $context['account_email'] ?? '' ),
-			self::detailLine( __( 'Email', 'checkout-blocker-by-talistech' ), $context['email'] ?? '' ),
-			self::detailLine( __( 'Address', 'checkout-blocker-by-talistech' ), $context['address_1'] ?? '' ),
-			self::detailLine( __( 'Postcode', 'checkout-blocker-by-talistech' ), $context['postcode'] ?? '' ),
-			self::detailLine( __( 'Country', 'checkout-blocker-by-talistech' ), $context['country'] ?? '' ),
-			self::detailLine( __( 'IP', 'checkout-blocker-by-talistech' ), $context['ip'] ?? '' ),
-			self::detailLine( __( 'User-Agent', 'checkout-blocker-by-talistech' ), $context['user_agent'] ?? '' ),
-			self::detailLine( __( 'When', 'checkout-blocker-by-talistech' ), current_time( 'mysql' ) ),
-			self::detailLine( __( 'URL', 'checkout-blocker-by-talistech' ), $context['url'] ?? home_url( '/' ) ),
-			self::detailLine( __( 'Site', 'checkout-blocker-by-talistech' ), home_url( '/' ) ),
+			self::detailLine( __( 'Account email', 'talistech-checkout-blocker-for-woocommerce' ), $context['account_email'] ?? '' ),
+			self::detailLine( __( 'Email', 'talistech-checkout-blocker-for-woocommerce' ), $context['email'] ?? '' ),
+			self::detailLine( __( 'Address', 'talistech-checkout-blocker-for-woocommerce' ), $context['address_1'] ?? '' ),
+			self::detailLine( __( 'Postcode', 'talistech-checkout-blocker-for-woocommerce' ), $context['postcode'] ?? '' ),
+			self::detailLine( __( 'Country', 'talistech-checkout-blocker-for-woocommerce' ), $context['country'] ?? '' ),
+			self::detailLine( __( 'IP', 'talistech-checkout-blocker-for-woocommerce' ), $context['ip'] ?? '' ),
+			self::detailLine( __( 'User-Agent', 'talistech-checkout-blocker-for-woocommerce' ), $context['user_agent'] ?? '' ),
+			self::detailLine( __( 'When', 'talistech-checkout-blocker-for-woocommerce' ), current_time( 'mysql' ) ),
+			self::detailLine( __( 'URL', 'talistech-checkout-blocker-for-woocommerce' ), $context['url'] ?? home_url( '/' ) ),
+			self::detailLine( __( 'Site', 'talistech-checkout-blocker-for-woocommerce' ), home_url( '/' ) ),
 		);
 
 		try {
@@ -193,7 +193,7 @@ final class Notifications {
 
 	private function mailFailure(): void {
 		if ( function_exists( 'wc_get_logger' ) ) {
-			wc_get_logger()->warning( 'Checkout Blocker could not send an administrator notification.', array( 'source' => 'checkout-blocker-by-talistech' ) );
+			wc_get_logger()->warning( 'Checkout Blocker could not send an administrator notification.', array( 'source' => 'talistech-checkout-blocker-for-woocommerce' ) );
 		}
 	}
 

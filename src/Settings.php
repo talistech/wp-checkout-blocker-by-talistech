@@ -26,7 +26,7 @@ final class Settings {
 			'email_rules'     => '',
 			'name_rules'      => '',
 			'address_rules'   => '',
-			'notice_text'     => __( 'Checkout is not available for this account. Please contact support.', 'checkout-blocker-by-talistech' ),
+			'notice_text'     => __( 'Checkout is not available for this account. Please contact support.', 'talistech-checkout-blocker-for-woocommerce' ),
 			'notify_admins'   => 0,
 			'force_logout'    => 0,
 			'logout_redirect' => home_url( '/' ),
@@ -128,9 +128,9 @@ final class Settings {
 
 			if ( $invalid !== array() ) {
 				$label = match ( $key ) {
-					'email_rules' => __( 'email', 'checkout-blocker-by-talistech' ),
-					'name_rules' => __( 'name', 'checkout-blocker-by-talistech' ),
-					default => __( 'address', 'checkout-blocker-by-talistech' ),
+					'email_rules' => __( 'email', 'talistech-checkout-blocker-for-woocommerce' ),
+					'name_rules' => __( 'name', 'talistech-checkout-blocker-for-woocommerce' ),
+					default => __( 'address', 'talistech-checkout-blocker-for-woocommerce' ),
 				};
 				add_settings_error(
 					self::OPTION_KEY,
@@ -138,7 +138,7 @@ final class Settings {
 					esc_html(
 						sprintf(
 							/* translators: 1: rule type, 2: invalid values */
-							__( 'Some invalid %1$s rules were skipped: %2$s', 'checkout-blocker-by-talistech' ),
+							__( 'Some invalid %1$s rules were skipped: %2$s', 'talistech-checkout-blocker-for-woocommerce' ),
 							$label,
 							implode( ', ', array_slice( $invalid, 0, 5 ) )
 						)
