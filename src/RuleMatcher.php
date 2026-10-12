@@ -25,7 +25,7 @@ final class RuleMatcher {
 	}
 
 	/**
-	 * Find the first matching rule, checking both billing and account email.
+	 * Find the first matching rule, checking billing and trusted account emails.
 	 *
 	 * @param array<string, mixed> $context
 	 * @return array{type: string, rule: string, value: string}|null
@@ -35,6 +35,7 @@ final class RuleMatcher {
 			array(
 				self::normalizeEmail( self::text( $context['email'] ?? '' ) ),
 				self::normalizeEmail( self::text( $context['account_email'] ?? '' ) ),
+				self::normalizeEmail( self::text( $context['order_account_email'] ?? '' ) ),
 			)
 		);
 		foreach ( $this->emailRules() as $rule ) {
@@ -108,7 +109,7 @@ final class RuleMatcher {
 	 */
 	private function lines( string $key ): array {
 		$raw   = self::text( $this->settings[ $key ] ?? '' );
-		$lines = preg_split( '/\R+/', $raw ) ?: array();
+		$lines = preg_split( '/\R+/u', $raw ) ?: array();
 
 		return array_values(
 			array_filter(
@@ -138,13 +139,75 @@ final class RuleMatcher {
 		if ( $rule === '' || $value === '' ) {
 			return false;
 		}
-
-		if ( ! str_contains( $rule, '*' ) ) {
-			return $rule === $value;
+		if ( preg_match( '//u', $rule ) !== 1 || preg_match( '//u', $value ) !== 1 ) {
+			return false;
 		}
 
-		$pattern = '/^' . str_replace( '\\*', '.*', preg_quote( $rule, '/' ) ) . '$/iu';
-		return preg_match( $pattern, $value ) === 1;
+		// Only '*' is special. Atomic fragments prevent exponential wildcard backtracking.
+		$rule  = preg_replace( '/\*+/', '*', $rule ) ?? $rule;
+		$parts = explode( '*', $rule );
+		$regex = preg_quote( array_shift( $parts ), '/' );
+		$last  = count( $parts ) - 1;
+		foreach ( $parts as $index => $part ) {
+			$fixed  = preg_quote( $part, '/' );
+			$regex .= $index === $last ? '.*' . $fixed : '(?>.*?' . $fixed . ')';
+		}
+
+		// Legacy rules have no length limit. Avoid PCRE compilation limits without discarding them.
+		if ( strlen( $regex ) > 16384 ) {
+			return $this->matchesLongPattern( $rule, $value );
+		}
+		$result = preg_match( '/^' . $regex . '$/iu', $value );
+		return $result === false ? $this->matchesLongPattern( $rule, $value ) : $result === 1;
+	}
+
+	private function matchesLongPattern( string $rule, string $value ): bool {
+		$ruleChars  = preg_split( '//u', $rule, -1, PREG_SPLIT_NO_EMPTY );
+		$valueChars = preg_split( '//u', $value, -1, PREG_SPLIT_NO_EMPTY );
+		if ( $ruleChars === false || $valueChars === false ) {
+			return false;
+		}
+		$ruleLength  = count( $ruleChars );
+		$valueLength = count( $valueChars );
+		if ( $ruleLength - substr_count( $rule, '*' ) > $valueLength ) {
+			return false;
+		}
+
+		$ruleIndex   = 0;
+		$valueIndex  = 0;
+		$starIndex   = -1;
+		$retryIndex  = 0;
+		$comparisons = array();
+		while ( $valueIndex < $valueLength ) {
+			if ( $ruleIndex < $ruleLength && $ruleChars[ $ruleIndex ] === '*' ) {
+				$starIndex  = $ruleIndex++;
+				$retryIndex = $valueIndex;
+				continue;
+			}
+			if ( $ruleIndex < $ruleLength ) {
+				$left  = $ruleChars[ $ruleIndex ];
+				$right = $valueChars[ $valueIndex ];
+				$key   = $left . "\0" . $right;
+				if ( ! isset( $comparisons[ $key ] ) ) {
+					// Each expression compares one valid UTF-8 character, independent of rule length.
+					$comparisons[ $key ] = $left === $right || preg_match( '/^' . preg_quote( $left, '/' ) . '$/iu', $right ) === 1;
+				}
+				if ( $comparisons[ $key ] ) {
+					++$ruleIndex;
+					++$valueIndex;
+					continue;
+				}
+			}
+			if ( $starIndex === -1 ) {
+				return false;
+			}
+			$ruleIndex  = $starIndex + 1;
+			$valueIndex = ++$retryIndex;
+		}
+		while ( $ruleIndex < $ruleLength && $ruleChars[ $ruleIndex ] === '*' ) {
+			++$ruleIndex;
+		}
+		return $ruleIndex === $ruleLength;
 	}
 
 	private static function text( mixed $value ): string {
@@ -164,7 +227,7 @@ final class RuleMatcher {
 
 	public static function normalizeAddress( string $address, string $postcode, string $country ): string {
 		$address  = self::normalizeText( $address );
-		$postcode = preg_replace( '/\s+/', '', self::normalizeText( $postcode ) ) ?? '';
+		$postcode = preg_replace( '/\s+/u', '', self::normalizeText( $postcode ) ) ?? '';
 		$country  = self::normalizeText( $country );
 
 		if ( $address === '' || $postcode === '' || $country === '' ) {
@@ -181,7 +244,7 @@ final class RuleMatcher {
 		}
 
 		$normalized = self::normalizeText( $parts[0] ) . '|' .
-			( preg_replace( '/\s+/', '', self::normalizeText( $parts[1] ) ) ?? '' ) . '|' .
+			( preg_replace( '/\s+/u', '', self::normalizeText( $parts[1] ) ) ?? '' ) . '|' .
 			self::normalizeText( $parts[2] );
 
 		return in_array( '', explode( '|', $normalized ), true ) ? null : $normalized;
@@ -199,7 +262,7 @@ final class RuleMatcher {
 		}
 
 		$value = strtolower( $value );
-		return preg_replace( '/\s+/', ' ', $value ) ?? '';
+		return trim( preg_replace( '/\s+/u', ' ', $value ) ?? '' );
 	}
 
 	public static function isValidEmailRule( string $rule ): bool {

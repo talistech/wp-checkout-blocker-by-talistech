@@ -23,6 +23,7 @@ final class WooCommerce {
 	public function register(): void {
 		add_action( 'woocommerce_after_checkout_validation', array( $this, 'validateClassicCheckout' ), 10, 2 );
 		add_action( 'woocommerce_checkout_validate_order_before_payment', array( $this, 'validateBlocksCheckout' ), 10, 2 );
+		add_action( 'woocommerce_before_pay_action', array( $this, 'validatePayOrder' ), 10 );
 		add_action( 'template_redirect', array( $this, 'maybeForceLogout' ), 1 );
 	}
 
@@ -39,6 +40,22 @@ final class WooCommerce {
 		}
 
 		$errors->add( 'talistech_checkout_blocked', $this->notice() );
+		$this->notifications->maybeSend( $match, $context );
+	}
+
+	/** Validate an existing order after WooCommerce verifies its payment nonce and key. */
+	public function validatePayOrder( object $order ): void {
+		if ( ! is_a( $order, 'WC_Order' ) ) {
+			return;
+		}
+		$context = $this->contextFromOrder( $order, true );
+		$match   = $this->matcher->match( $context );
+		if ( $match === null ) {
+			return;
+		}
+
+		// The core payment handler refuses gateway processing when an error notice exists.
+		wc_add_notice( $this->notice(), 'error' );
 		$this->notifications->maybeSend( $match, $context );
 	}
 
@@ -104,7 +121,7 @@ final class WooCommerce {
 	 *
 	 * @return array<string, string>
 	 */
-	private function contextFromOrder( object $order ): array {
+	private function contextFromOrder( object $order, bool $includeOrderAccount = false ): array {
 		$context = array(
 			'email'      => $this->text( $order->get_billing_email() ),
 			'first_name' => $this->text( $order->get_billing_first_name() ),
@@ -114,6 +131,12 @@ final class WooCommerce {
 			'country'    => $this->text( $order->get_billing_country() ),
 		);
 
+		if ( $includeOrderAccount ) {
+			// Payment links can be used while logged out or signed in to a different account.
+			$customerId                     = (int) $order->get_customer_id();
+			$customer                       = $customerId > 0 ? get_user_by( 'id', $customerId ) : false;
+			$context['order_account_email'] = $customer instanceof \WP_User ? $this->text( $customer->user_email ) : '';
+		}
 		return $this->completeContext( $context );
 	}
 

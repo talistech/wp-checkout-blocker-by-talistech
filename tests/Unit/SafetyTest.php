@@ -114,6 +114,41 @@ final class SafetyTest extends TestCase
         self::assertFalse($errors->has_errors());
     }
 
+    public function testExistingOrderPaymentChecksTheTrustedOwnerWhileLoggedOut(): void
+    {
+        \TcbTestState::$users = [new \WP_User(3, 'blocked@example.com')];
+        $plugin = new WooCommerce(new RuleMatcher(['email_rules' => 'blocked@example.com']), new Notifications());
+        $plugin->validatePayOrder(new \WC_Order(['customer_id' => 3, 'billing_email' => 'allowed@example.net']));
+        self::assertSame(1, wc_notice_count('error'));
+    }
+
+    public function testAnotherSignedInAccountCannotBypassTheExistingOrderOwnerRule(): void
+    {
+        \TcbTestState::$users = [new \WP_User(3, 'blocked@example.com')];
+        \TcbTestState::$current = new \WP_User(4, 'allowed@example.net');
+        $plugin = new WooCommerce(new RuleMatcher(['email_rules' => 'blocked@example.com']), new Notifications());
+        $plugin->validatePayOrder(new \WC_Order(['customer_id' => 3, 'billing_email' => 'allowed@example.net']));
+        self::assertSame(1, wc_notice_count('error'));
+    }
+
+    public function testExistingOrderPaymentChecksBillingAndCurrentAccountRules(): void
+    {
+        $plugin = new WooCommerce(new RuleMatcher(['email_rules' => 'blocked@example.com']), new Notifications());
+        $plugin->validatePayOrder(new \WC_Order(['billing_email' => 'blocked@example.com']));
+        self::assertSame(1, wc_notice_count('error'));
+        \TcbTestState::$current = new \WP_User(3, 'blocked@example.com');
+        $plugin->validatePayOrder(new \WC_Order(['billing_email' => 'allowed@example.net']));
+        self::assertSame(2, wc_notice_count('error'));
+    }
+
+    public function testAllowedOrdersAndNonOrderObjectsDoNotCreatePaymentErrors(): void
+    {
+        $plugin = new WooCommerce(new RuleMatcher(['email_rules' => 'blocked@example.com']), new Notifications());
+        $plugin->validatePayOrder(new \WC_Order(['billing_email' => 'allowed@example.net']));
+        $plugin->validatePayOrder(new \stdClass());
+        self::assertSame(0, wc_notice_count('error'));
+    }
+
     private function notify(string $email, string $ip): void
     {
         (new Notifications())->maybeSend(['type' => 'email', 'rule' => '@example.com', 'value' => $email], ['email' => $email, 'ip' => $ip]);

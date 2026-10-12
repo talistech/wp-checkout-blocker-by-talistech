@@ -111,9 +111,12 @@ cases = [
     ("domain excludes subdomain", {"email_rules": "@example.com"}, {"email": "guest@shop.example.com"}, None, False),
     ("wildcard", {"email_rules": "test-*@example.net"}, {"email": "test-123@example.net"}, None, True),
     ("accented name", {"name_rules": "jose de smet"}, {"first_name": "José", "last_name": "De Smet"}, None, True),
+    ("unicode exact name", {"name_rules": "Γιάννης Παπαδόπουλος"}, {"first_name": "ΓΙΆΝΝΗΣ", "last_name": "ΠΑΠΑΔΌΠΟΥΛΟΣ"}, None, True),
+    ("unicode wildcard name", {"name_rules": "*Иванов"}, {"first_name": "ИВАН", "last_name": "ИВАНОВ"}, None, True),
     ("wildcard name", {"name_rules": "* de smet"}, {"last_name": "De Smet"}, None, True),
     ("normalized address", {"address_rules": "street 1|1000|be"}, {"address_1": "Street   1", "postcode": "100 0"}, None, True),
     ("wildcard address", {"address_rules": "street 1|*|be"}, {}, None, True),
+    ("unicode exact address", {"address_rules": "Улица 1|1000|be"}, {"address_1": "УЛИЦА 1"}, None, True),
     ("allowed account", {}, {}, "tcb-test-customer", False),
     ("account email bypass", {"email_rules": "blocked@example.com"}, {"email": "different@example.net"}, "tcb-test-customer", True),
     ("account domain bypass", {"email_rules": "@example.com"}, {"email": "different@example.net"}, "tcb-test-customer", True),
@@ -139,6 +142,91 @@ for hpos in [False, True]:
                     assert result.get("status") not in ("checkout-draft", "failed"), result
             count += 1
             print(f"PASS HPOS={'on' if hpos else 'off'} {mode}: {label}", flush=True)
+
+# Pending/failed orders use separate payment entrypoints. Track the real COD gateway
+# through the local-only fixture filter, so an error response cannot hide a payment.
+wp("if(wp_get_environment_type()!=='local'){throw new Exception('Local only');} "
+   "$user=get_user_by('login','tcb-test-alt-account');"
+   "if(!$user){$id=wp_insert_user(['user_login'=>'tcb-test-alt-account','user_email'=>'alternate@example.net',"
+   "'user_pass'=>'tcb-local-checkout-1!','role'=>'customer']);if(is_wp_error($id)){throw new Exception($id->get_error_message());}}")
+
+def create_pay_order(address, owner, initial_status):
+    payload = json.dumps({"billing": address, "owner": owner, "status": initial_status})
+    code = "if(wp_get_environment_type()!=='local'){throw new Exception('Local only');} "
+    code += "$data=json_decode(" + json.dumps(payload) + ",true);"
+    code += "$owner=$data['owner']?get_user_by('login',$data['owner']):false;"
+    code += "$order=wc_create_order(['customer_id'=>$owner?$owner->ID:0]);"
+    code += "if(is_wp_error($order)){throw new Exception($order->get_error_message());}"
+    code += "$order->set_billing_address($data['billing']);$order->set_shipping_address($data['billing']);"
+    code += "$order->add_product(wc_get_product((int)get_option('tcb_test_product_id')),1);"
+    code += "$order->calculate_totals();$order->set_status($data['status']);$order->save();"
+    code += "echo 'TCB_RESULT:'.json_encode(['id'=>$order->get_id(),'key'=>$order->get_order_key(),'url'=>$order->get_checkout_payment_url()]);"
+    return wp(code)
+
+def payment_path(order):
+    parts = urllib.parse.urlparse(order["url"])
+    return parts.path + ("?" + parts.query if parts.query else "")
+
+pay_cases = [
+    ("allowed guest", {}, {}, None, None, False),
+    ("blocked guest email", {"email_rules": "blocked@example.com"}, {"email": "blocked@example.com"}, None, None, True),
+    ("blocked guest name", {"name_rules": "jan jansen"}, {}, None, None, True),
+    ("blocked guest address", {"address_rules": "street 1|1000|be"}, {}, None, None, True),
+    ("allowed account", {}, {}, "tcb-test-customer", "tcb-test-customer", False),
+    ("blocked account alternate billing", {"email_rules": "blocked@example.com"}, {}, "tcb-test-customer", "tcb-test-customer", True),
+    ("blocked owner logged out", {"email_rules": "blocked@example.com"}, {}, "tcb-test-customer", None, True),
+    ("blocked owner signed in elsewhere", {"email_rules": "blocked@example.com"}, {}, "tcb-test-customer", "tcb-test-alt-account", True),
+    ("blocked account forced logout", {"email_rules": "blocked@example.com", "force_logout": 1}, {}, "tcb-test-customer", "tcb-test-customer", True),
+]
+for hpos in [False, True]:
+    for mode in ["classic-pay", "blocks-pay"]:
+        for initial_status in ["pending", "failed"]:
+            for label, settings, changes, owner, login, blocked in pay_cases:
+                # Registered Store API orders require their owner to authenticate.
+                # Classic pay POST only verifies the nonce/key, so test its extra paths.
+                if mode == "blocks-pay" and (login != owner or settings.get("force_logout")):
+                    continue
+                configure({}, hpos)
+                address = {**billing, **changes}
+                order = create_pay_order(address, owner, initial_status)
+                browser = Browser(login)
+                if mode == "classic-pay":
+                    nonce_order = order
+                    if owner and login != owner:
+                        # A payment nonce is scoped to its action/session, not an order.
+                        # Use a real guest payment form to exercise direct registered-order POSTs.
+                        nonce_order = create_pay_order(billing, None, "pending")
+                    response_status, headers, page = browser.request(payment_path(nonce_order))
+                    assert isinstance(page, str), ("Pay form", response_status, page)
+                    nonce_match = re.search(r'name="woocommerce-pay-nonce"\s+value="([^"]+)"', page)
+                    assert nonce_match, ("Pay form nonce missing", label, response_status, page)
+                    configure({**settings, "notice_text": "TCB checkout blocked"}, hpos)
+                    response_status, headers, result = browser.request(payment_path(order), {
+                        "woocommerce_pay": "1", "payment_method": "cod", "woocommerce-pay-nonce": nonce_match.group(1),
+                        "terms": "on", "terms-field": "1",
+                    }, form=True)
+                else:
+                    response_status, headers, cart = browser.request("/wp-json/wc/store/v1/cart")
+                    nonce = headers.get("Nonce")
+                    assert response_status == 200 and nonce, ("Existing order cart nonce", response_status, cart)
+                    configure({**settings, "notice_text": "TCB checkout blocked"}, hpos)
+                    response_status, headers, result = browser.request("/wp-json/wc/store/v1/checkout/" + str(order["id"]), {
+                        "key": order["key"], "billing_email": address["email"],
+                        "billing_address": address, "shipping_address": address, "payment_method": "cod", "payment_data": [],
+                    }, headers={"Nonce": nonce})
+                state = wp("$order=wc_get_order(" + str(order["id"]) + ");echo 'TCB_RESULT:'.json_encode(["
+                           "'status'=>$order->get_status(),'gateway_calls'=>(int)$order->get_meta('_tcb_test_gateway_calls')]);")
+                if blocked:
+                    assert state == {"status": initial_status, "gateway_calls": 0}, (hpos, mode, label, state, result)
+                    if mode == "blocks-pay":
+                        assert response_status == 400 and "TCB checkout blocked" in json.dumps(result), (response_status, result)
+                        assert "payment_result" not in result, result
+                else:
+                    assert state["gateway_calls"] == 1 and state["status"] not in ("pending", "failed"), (hpos, mode, label, state, result)
+                    if mode == "blocks-pay":
+                        assert response_status == 200 and result.get("payment_result", {}).get("payment_status") == "success", (response_status, result)
+                count += 1
+                print(f"PASS HPOS={'on' if hpos else 'off'} {mode} {initial_status}: {label}; gateway calls={state['gateway_calls']}", flush=True)
 
 # Verify actual administrator pages, including privacy text added on admin_init.
 configure({}, True)

@@ -14,13 +14,15 @@ final class Plugin {
 
 	public static function boot(): void {
 		add_action( 'admin_init', array( self::class, 'privacyPolicy' ) );
-		if ( ! defined( 'WC_VERSION' ) || version_compare( (string) WC_VERSION, '10.9', '<' ) ) {
+		if ( ! self::hasSupportedWooCommerce() ) {
 			add_action( 'admin_notices', array( self::class, 'dependencyNotice' ) );
+			add_action( 'network_admin_notices', array( self::class, 'dependencyNotice' ) );
 			return;
 		}
 
 		if ( class_exists( 'Talistech_Checkout_Blocker' ) ) {
 			add_action( 'admin_notices', array( self::class, 'legacyConflictNotice' ) );
+			add_action( 'network_admin_notices', array( self::class, 'legacyConflictNotice' ) );
 			return;
 		}
 
@@ -45,24 +47,41 @@ final class Plugin {
 	}
 
 	public static function dependencyNotice(): void {
-		if ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( ! self::canShowOperationalNotice() || self::hasSupportedWooCommerce() ) {
 			return;
 		}
 
-		echo '<div class="notice notice-error"><p>' . esc_html__(
-			'Checkout Blocker by Talistech requires WooCommerce 10.9 or newer and is currently inactive.',
+		echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__(
+			'Checkout Blocker by Talistech is currently inactive. Activate WooCommerce 10.9 or newer to enable checkout blocking.',
 			'checkout-blocker-by-talistech'
 		) . '</p></div>';
 	}
 
 	public static function legacyConflictNotice(): void {
-		if ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( ! self::canShowOperationalNotice() || ! class_exists( 'Talistech_Checkout_Blocker' ) ) {
 			return;
 		}
 
-		echo '<div class="notice notice-warning"><p>' . esc_html__(
+		echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__(
 			'The legacy Talistech BV Checkout Blocker is active. Deactivate it before using this plugin to avoid duplicate checkout validation.',
 			'checkout-blocker-by-talistech'
 		) . '</p></div>';
+	}
+
+	private static function hasSupportedWooCommerce(): bool {
+		return defined( 'WC_VERSION' ) && version_compare( (string) WC_VERSION, '10.9', '>=' );
+	}
+
+	private static function canShowOperationalNotice(): bool {
+		if ( ! current_user_can( 'activate_plugins' ) || ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+		return $screen !== null && in_array(
+			$screen->id,
+			array( 'plugins', 'plugins-network', 'settings_page_' . Settings::PAGE_SLUG ),
+			true
+		);
 	}
 }

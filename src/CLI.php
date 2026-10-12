@@ -27,7 +27,7 @@ final class CLI {
 		$type     = $this->type( $assocArgs['type'] ?? 'email' );
 		$settings = Settings::get();
 		$key      = $type . '_rules';
-		foreach ( preg_split( '/\R+/', (string) ( $settings[ $key ] ?? '' ) ) ?: array() as $line ) {
+		foreach ( preg_split( '/\R+/u', (string) ( $settings[ $key ] ?? '' ) ) ?: array() as $line ) {
 			$line = trim( $line );
 			if ( $line !== '' ) {
 				\WP_CLI::line( $line );
@@ -84,7 +84,7 @@ final class CLI {
 			\WP_CLI::error( 'Rule is invalid for type ' . $type . '.' );
 		}
 
-		$lines = array_values( array_filter( array_map( 'trim', preg_split( '/\R+/', (string) $settings[ $key ] ) ?: array() ) ) );
+		$lines = array_values( array_filter( array_map( 'trim', preg_split( '/\R+/u', (string) $settings[ $key ] ) ?: array() ) ) );
 		if ( $remove ) {
 			$lines = array_values( array_filter( $lines, static fn( string $line ): bool => $line !== $normalized ) );
 		} elseif ( ! in_array( $normalized, $lines, true ) ) {

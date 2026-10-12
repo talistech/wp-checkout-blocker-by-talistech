@@ -135,11 +135,13 @@ final class Settings {
 				add_settings_error(
 					self::OPTION_KEY,
 					'invalid_' . $key,
-					sprintf(
-						/* translators: 1: rule type, 2: invalid values */
-						__( 'Some invalid %1$s rules were skipped: %2$s', 'checkout-blocker-by-talistech' ),
-						$label,
-						implode( ', ', array_slice( $invalid, 0, 5 ) )
+					esc_html(
+						sprintf(
+							/* translators: 1: rule type, 2: invalid values */
+							__( 'Some invalid %1$s rules were skipped: %2$s', 'checkout-blocker-by-talistech' ),
+							$label,
+							implode( ', ', array_slice( $invalid, 0, 5 ) )
+						)
 					),
 					'warning'
 				);
@@ -205,7 +207,7 @@ final class Settings {
 	 * @return array{0: string, 1: list<string>}
 	 */
 	private static function sanitizeLines( string $raw, string $type ): array {
-		$lines   = preg_split( '/\R+/', $raw ) ?: array();
+		$lines   = preg_split( '/\R+/u', $raw ) ?: array();
 		$valid   = array();
 		$invalid = array();
 

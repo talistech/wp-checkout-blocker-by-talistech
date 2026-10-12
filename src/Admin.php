@@ -57,6 +57,10 @@ final class Admin {
 	 * @return list<string>
 	 */
 	public function pluginLinks( array $links ): array {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $links;
+		}
+
 		array_unshift(
 			$links,
 			'<a href="' . esc_url( admin_url( 'options-general.php?page=' . Settings::PAGE_SLUG ) ) . '">' .
