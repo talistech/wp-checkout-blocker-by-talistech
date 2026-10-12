@@ -2,3 +2,6 @@
 /dist/
 .phpunit.result.cache
 .DS_Store
+/node_modules/
+/.wp-env.override.json
+/verification/

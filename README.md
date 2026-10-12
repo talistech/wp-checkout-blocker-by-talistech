@@ -1,6 +1,6 @@
-# Checkout Blocker for WooCommerce
+# Checkout Blocker by Talistech
 
-Checkout Blocker by Talistech BV prevents selected customers from placing WooCommerce orders. It validates checkout data on the server against rules for email addresses, full billing names, and billing addresses.
+Checkout Blocker by Talistech prevents selected customers from placing WooCommerce orders. It validates checkout data on the server against rules for email addresses, full billing names, and billing addresses.
 
 It supports both the classic WooCommerce checkout and the block-based Checkout.
 
@@ -15,6 +15,8 @@ It supports both the classic WooCommerce checkout and the block-based Checkout.
 - Invalidate active WordPress sessions for exact blocked email addresses.
 - Manage rules through WP-CLI.
 - No external service, account, or tracking dependency.
+
+For signed-in customers, email rules check both the account email and the submitted billing email. Name and address rules use the submitted billing details. Administrators and shop managers are protected from forced logout and session destruction.
 
 All checkout decisions are made server-side. Disabling JavaScript or using the Checkout Block does not bypass the configured rules.
 
@@ -79,7 +81,7 @@ Use the two-letter country code stored by WooCommerce, such as `BE`, `NL`, or `F
 
 **Customer notice** controls the error shown when checkout is blocked.
 
-**Admin notifications** sends an email to site administrators when a rule matches. The message can contain the customer's name, email address, billing address, IP address, user agent, date, and checkout URL. Enable this only when it fits your privacy policy and data-retention practices. Repeated notifications for the same email/IP combination are temporarily throttled.
+**Admin notifications** sends an email to site administrators when a rule matches. The message can contain the customer's name, email address, billing address, IP address, user agent, date, and checkout URL. Enable this only when it fits your privacy policy and data-retention practices. Notifications are limited to one per IP address per ten minutes and sixty per site per hour, including concurrent requests using a connection-owned MySQL/MariaDB lock. Limits are reserved before sending; failed mail attempts also consume the budget. Only keyed IP hashes and counters are retained. Changing the billing email cannot reset the limit. Checkout URLs exclude query parameters.
 
 **Force logout** signs out a logged-in WordPress user when their account email matches an email rule. The configured redirect must be a local site URL.
 
@@ -110,7 +112,7 @@ wp talistech-cb destroy_sessions
 
 ## Privacy and security
 
-The plugin does not send data to Talistech BV or another external service. Rules and settings are stored in the WordPress options table. If admin notifications are enabled, checkout details are sent through the site's configured WordPress mail system.
+The plugin does not send data to Talistech or another external service. Rules and settings are stored in the WordPress options table. If admin notifications are enabled, checkout details are sent through the site's configured WordPress mail system.
 
 Only administrators with the `manage_options` capability can change settings or destroy sessions. Settings are sanitized when saved, and session destruction is protected by a WordPress nonce.
 
@@ -124,6 +126,31 @@ composer test
 ```
 
 The production ZIP does not require Composer dependencies.
+
+```bash
+composer lint
+nvm use # Node 24 is required for development tools
+npm ci
+npm run env:start
+npm run test:integration
+npm run test:matrix
+npm run i18n
+npm run build
+npm run check:plugin
+npm run env:stop
+```
+
+The isolated environment uses port 8894; the version matrix uses 8896–8898 and package verification uses 8895. Development dependencies are pinned in lockfiles, with overrides for security fixes. A documented postinstall patch switches wp-env 11.16 to the supported simple-git 4 named factory; it affects development tooling only. See [release verification](docs/VERIFICATION.md) for the compatibility matrix and [WordPress.org publication](docs/PUBLISHING.md) for submission instructions. Build output is `dist/checkout-blocker-by-talistech-1.2.0.zip`. Builds use an explicit runtime-file allowlist and fixed ZIP metadata for reproducible results.
+
+The coding rules retain existing callback names, PSR-4 file paths and comparison style and do not require redundant function comments on typed methods. WordPress escaping, sanitization, nonce, database and internationalization checks remain enabled.
+
+## Lifecycle
+
+The release changes the plugin folder and main file to `checkout-blocker-by-talistech`. Existing installations require the manual migration described in [the publication guide](docs/PUBLISHING.md#release-identity). Option keys, WP-CLI commands and public hooks remain unchanged. `RuleMatcher::match()` additionally accepts `account_email`; its result format is unchanged. Notification recipient filters receive this additional context field. The translation domain now matches the directory slug, `checkout-blocker-by-talistech`.
+
+Network activation initializes every site, and newly created sites are initialized when the plugin is network active. Deactivation retains settings. Uninstall removes this plugin's settings and notification limiter data on all multisite sites, including legacy notification transients. Customer accounts, sessions unrelated to the explicit session command and orders are not deleted.
+
+Rules are retained until manually removed or uninstalled. Expired IP hashes are pruned on the next notification attempt; dormant limiter data is also removed on uninstall. Mailbox retention is controlled by the shop and mail provider. Review the suggested privacy text under WordPress's privacy policy guide.
 
 ## Contributing and support
 

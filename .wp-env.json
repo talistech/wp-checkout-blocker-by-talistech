@@ -1,0 +1,20 @@
+{
+  "core": "https://wordpress.org/wordpress-7.1.2.zip",
+  "phpVersion": "8.3",
+  "plugins": [
+    "https://downloads.wordpress.org/plugin/woocommerce.11.1.2.zip",
+    "https://downloads.wordpress.org/plugin/plugin-check.latest-stable.zip"
+  ],
+  "port": 8894,
+  "testsEnvironment": false,
+  "config": {
+    "WP_DEBUG": true,
+    "WP_DEBUG_LOG": true,
+    "SCRIPT_DEBUG": true,
+    "WP_ENVIRONMENT_TYPE": "local"
+  },
+  "mappings": {
+    "wp-content/mu-plugins/tcb-local-mail.php": "./tests/integration/mu-plugins/tcb-local-mail.php",
+    "wp-content/plugins/checkout-blocker-by-talistech": "."
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "plugin": "Checkout Blocker by Talistech",
+  "version": "1.2.0",
+  "slug": "checkout-blocker-by-talistech",
+  "generator": "Built-in imagegen; agent-browser for real screenshots",
+  "files": [
+    {
+      "file": "wordpress-org/icon-128x128.png",
+      "width": 128,
+      "height": 128,
+      "use": "WordPress.org search and plugin list icon",
+      "source": "imagegen artwork, resampled to required export dimensions",
+      "bytes": 10812,
+      "sha256": "692fbe59cf8da8b469e2db15e5e9cfe31649d271a940922c5461d5f7a1eb26b5"
+    },
+    {
+      "file": "wordpress-org/icon-256x256.png",
+      "width": 256,
+      "height": 256,
+      "use": "WordPress.org Retina plugin icon",
+      "source": "imagegen artwork, resampled to required export dimensions",
+      "bytes": 40857,
+      "sha256": "1a2bcc20fc5052967a944bd2a5c8bb10262e64e00ddb7934b1066451aab60b63"
+    },
+    {
+      "file": "avatar/avatar-1024x1024.png",
+      "width": 1024,
+      "height": 1024,
+      "use": "Plugin avatar for profiles and directories",
+      "source": "imagegen artwork, resampled to required export dimensions",
+      "bytes": 663491,
+      "sha256": "475225f67391f37d676dd428ee30ac007f6a27f148e186df3ac9772720fbf033"
+    },
+    {
+      "file": "wordpress-org/banner-772x250.png",
+      "width": 772,
+      "height": 250,
+      "use": "WordPress.org plugin page banner",
+      "source": "imagegen artwork, resampled to required export dimensions",
+      "bytes": 168395,
+      "sha256": "539cd37811e95d77b39523cdbcda77242d8c57d1ed5821c886d2284012d1025c"
+    },
+    {
+      "file": "wordpress-org/banner-1544x500.png",
+      "width": 1544,
+      "height": 500,
+      "use": "WordPress.org Retina plugin page banner",
+      "source": "imagegen artwork, resampled to required export dimensions",
+      "bytes": 626319,
+      "sha256": "d458f2d72c5dc0a1bb707c733103d83996fad213c3f29a80e5d2ed742bf0c207"
+    },
+    {
+      "file": "social/social-1200x630.png",
+      "width": 1200,
+      "height": 630,
+      "use": "Social link preview and landscape announcement",
+      "source": "imagegen artwork, resampled to required export dimensions",
+      "bytes": 659418,
+      "sha256": "43126012d7a514fa3c6a31b92a6d7ac00d20f6d542b309e2df4baf00389c3f67"
+    },
+    {
+      "file": "social/social-1080x1080.png",
+      "width": 1080,
+      "height": 1080,
+      "use": "Square social announcement",
+      "source": "imagegen artwork, resampled to required export dimensions",
+      "bytes": 1021824,
+      "sha256": "9f3cf68711f7dfd0c5b0f367d2191269d141440f641fffb703fbd9dde9082e8c"
+    },
+    {
+      "file": "wordpress-org/screenshot-1.png",
+      "width": 1238,
+      "height": 1725,
+      "use": "Real plugin settings page with synthetic block rules",
+      "source": "Unretouched Chromium element screenshot from local WordPress",
+      "bytes": 258797,
+      "sha256": "c708daa6d1f7b383f474240e2a35ef280bd40555405d4f4a8454629c17b96f28"
+    },
+    {
+      "file": "wordpress-org/screenshot-2.png",
+      "width": 1063,
+      "height": 1267,
+      "use": "Real classic checkout refused for blocked@example.com",
+      "source": "Unretouched Chromium element screenshot from local WordPress",
+      "bytes": 91138,
+      "sha256": "17cddd8d72f174c41fbaa5a97ac8bb3a2f0f0a4211151c7716052891b45b779f"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "site": "http://localhost:8895",
+  "wordpress": "7.1.2",
+  "woocommerce": "11.1.2",
+  "plugin": "1.2.0",
+  "theme": "Storefront 4.6.2",
+  "browser": "agent-browser 0.38.2 / Chromium",
+  "screenshots": [
+    {
+      "file": "wordpress-org/screenshot-1.png",
+      "url": "/wp-admin/options-general.php?page=talistech-checkout-blocker",
+      "selector": ".tcb-admin",
+      "viewport": [
+        1440,
+        2100
+      ]
+    },
+    {
+      "file": "wordpress-org/screenshot-2.png",
+      "url": "/checkout/",
+      "selector": "#main",
+      "viewport": [
+        1440,
+        1900
+      ],
+      "trigger": "Clicked Place order with blocked@example.com; waited for .woocommerce-error and processing overlay removal",
+      "visible_notice": "Checkout is not available for this account. Please contact support.",
+      "customer": {
+        "first_name": "Alex",
+        "last_name": "Demo",
+        "email": "blocked@example.com",
+        "address": "Voorbeeldstraat 10",
+        "postcode": "1000",
+        "city": "Brussels",
+        "country": "Belgium"
+      },
+      "product": "Demo product \u2014 \u20ac24.00"
+    }
+  ],
+  "retouching": false,
+  "data": "Synthetic demo data only"
+}

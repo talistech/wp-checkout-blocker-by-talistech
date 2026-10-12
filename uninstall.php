@@ -1,9 +1,15 @@
 <?php
+/**
+ * WordPress uninstall entry point.
+ *
+ * @package TalistechCheckoutBlocker
+ */
 
 declare(strict_types=1);
 
-if (! defined('WP_UNINSTALL_PLUGIN')) {
-    exit;
+if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+	exit;
 }
 
-delete_option('talistech_checkout_blocker_settings');
+require_once __DIR__ . '/src/Uninstall.php';
+\Talistech\CheckoutBlocker\Uninstall::run();

@@ -1,188 +1,220 @@
 <?php
+/**
+ * RuleMatcher integration for Checkout Blocker.
+ *
+ * @package TalistechCheckoutBlocker
+ */
 
 declare(strict_types=1);
 
 namespace Talistech\CheckoutBlocker;
 
-final class RuleMatcher
-{
-    public const EMAIL = 'email';
-    public const NAME = 'name';
-    public const ADDRESS = 'address';
+/** Compare normalized checkout identities against configured rules. */
+final class RuleMatcher {
 
-    /**
-     * @param array<string, mixed> $settings
-     */
-    public function __construct(private readonly array $settings)
-    {
-    }
+	public const EMAIL   = 'email';
+	public const NAME    = 'name';
+	public const ADDRESS = 'address';
 
-    /**
-     * @param array<string, mixed> $context
-     * @return array{type: string, rule: string, value: string}|null
-     */
-    public function match(array $context): ?array
-    {
-        $email = self::normalizeEmail((string) ($context['email'] ?? ''));
-        foreach ($this->emailRules() as $rule) {
-            if ($this->matchesEmail($rule, $email)) {
-                return ['type' => self::EMAIL, 'rule' => $rule, 'value' => $email];
-            }
-        }
+	/**
+	 * Initialize the matching configuration.
+	 *
+	 * @param array<string, mixed> $settings
+	 */
+	public function __construct( private readonly array $settings ) {
+	}
 
-        $name = self::normalizeName(
-            (string) ($context['first_name'] ?? ''),
-            (string) ($context['last_name'] ?? '')
-        );
-        if ($name !== '') {
-            foreach ($this->lines('name_rules') as $rule) {
-                $normalizedRule = self::normalizeText($rule);
-                if ($this->matchesPattern($normalizedRule, $name)) {
-                    return ['type' => self::NAME, 'rule' => $normalizedRule, 'value' => $name];
-                }
-            }
-        }
+	/**
+	 * Find the first matching rule, checking both billing and account email.
+	 *
+	 * @param array<string, mixed> $context
+	 * @return array{type: string, rule: string, value: string}|null
+	 */
+	public function match( array $context ): ?array {
+		$emails = array_unique(
+			array(
+				self::normalizeEmail( self::text( $context['email'] ?? '' ) ),
+				self::normalizeEmail( self::text( $context['account_email'] ?? '' ) ),
+			)
+		);
+		foreach ( $this->emailRules() as $rule ) {
+			foreach ( $emails as $email ) {
+				if ( $this->matchesEmail( $rule, $email ) ) {
+					return array(
+						'type'  => self::EMAIL,
+						'rule'  => $rule,
+						'value' => $email,
+					);
+				}
+			}
+		}
 
-        $address = self::normalizeAddress(
-            (string) ($context['address_1'] ?? ''),
-            (string) ($context['postcode'] ?? ''),
-            (string) ($context['country'] ?? '')
-        );
-        if ($address !== '') {
-            foreach ($this->lines('address_rules') as $rule) {
-                $normalizedRule = self::normalizeAddressRule($rule);
-                if ($normalizedRule !== null && $this->matchesPattern($normalizedRule, $address)) {
-                    return ['type' => self::ADDRESS, 'rule' => $normalizedRule, 'value' => $address];
-                }
-            }
-        }
+		$name = self::normalizeName(
+			self::text( $context['first_name'] ?? '' ),
+			self::text( $context['last_name'] ?? '' )
+		);
+		if ( $name !== '' ) {
+			foreach ( $this->lines( 'name_rules' ) as $rule ) {
+				$normalizedRule = self::normalizeText( $rule );
+				if ( $this->matchesPattern( $normalizedRule, $name ) ) {
+					return array(
+						'type'  => self::NAME,
+						'rule'  => $normalizedRule,
+						'value' => $name,
+					);
+				}
+			}
+		}
 
-        return null;
-    }
+		$address = self::normalizeAddress(
+			self::text( $context['address_1'] ?? '' ),
+			self::text( $context['postcode'] ?? '' ),
+			self::text( $context['country'] ?? '' )
+		);
+		if ( $address !== '' ) {
+			foreach ( $this->lines( 'address_rules' ) as $rule ) {
+				$normalizedRule = self::normalizeAddressRule( $rule );
+				if ( $normalizedRule !== null && $this->matchesPattern( $normalizedRule, $address ) ) {
+					return array(
+						'type'  => self::ADDRESS,
+						'rule'  => $normalizedRule,
+						'value' => $address,
+					);
+				}
+			}
+		}
 
-    /**
-     * @return list<string>
-     */
-    public function emailRules(): array
-    {
-        return array_values(array_filter(
-            $this->lines('email_rules'),
-            static fn(string $rule): bool => self::isValidEmailRule($rule)
-        ));
-    }
+		return null;
+	}
 
-    /**
-     * @return list<string>
-     */
-    private function lines(string $key): array
-    {
-        $raw = (string) ($this->settings[$key] ?? '');
-        $lines = preg_split('/\R+/', $raw) ?: [];
+	/**
+	 * Return valid email rules.
+	 *
+	 * @return list<string>
+	 */
+	public function emailRules(): array {
+		return array_values(
+			array_filter(
+				$this->lines( 'email_rules' ),
+				static fn( string $rule ): bool => self::isValidEmailRule( $rule )
+			)
+		);
+	}
 
-        return array_values(array_filter(array_map(
-            static fn(string $line): string => trim($line),
-            $lines
-        ), static fn(string $line): bool => $line !== ''));
-    }
+	/**
+	 * Read nonempty rules for a category.
+	 *
+	 * @return list<string>
+	 */
+	private function lines( string $key ): array {
+		$raw   = self::text( $this->settings[ $key ] ?? '' );
+		$lines = preg_split( '/\R+/', $raw ) ?: array();
 
-    private function matchesEmail(string $rule, string $email): bool
-    {
-        if ($email === '') {
-            return false;
-        }
+		return array_values(
+			array_filter(
+				array_map(
+					static fn( string $line ): string => trim( $line ),
+					$lines
+				),
+				static fn( string $line ): bool => $line !== ''
+			)
+		);
+	}
 
-        $rule = strtolower(trim($rule));
-        if (str_starts_with($rule, '@')) {
-            return $email !== '' && str_ends_with($email, $rule) && strrpos($email, '@') === strlen($email) - strlen($rule);
-        }
+	private function matchesEmail( string $rule, string $email ): bool {
+		if ( $email === '' ) {
+			return false;
+		}
 
-        return $this->matchesPattern($rule, $email);
-    }
+		$rule = strtolower( trim( $rule ) );
+		if ( str_starts_with( $rule, '@' ) ) {
+			return $email !== '' && str_ends_with( $email, $rule ) && strrpos( $email, '@' ) === strlen( $email ) - strlen( $rule );
+		}
 
-    private function matchesPattern(string $rule, string $value): bool
-    {
-        if ($rule === '' || $value === '') {
-            return false;
-        }
+		return $this->matchesPattern( $rule, $email );
+	}
 
-        if (! str_contains($rule, '*')) {
-            return $rule === $value;
-        }
+	private function matchesPattern( string $rule, string $value ): bool {
+		if ( $rule === '' || $value === '' ) {
+			return false;
+		}
 
-        $pattern = '/^' . str_replace('\\*', '.*', preg_quote($rule, '/')) . '$/iu';
-        return preg_match($pattern, $value) === 1;
-    }
+		if ( ! str_contains( $rule, '*' ) ) {
+			return $rule === $value;
+		}
 
-    public static function normalizeEmail(string $value): string
-    {
-        return strtolower(trim($value));
-    }
+		$pattern = '/^' . str_replace( '\\*', '.*', preg_quote( $rule, '/' ) ) . '$/iu';
+		return preg_match( $pattern, $value ) === 1;
+	}
 
-    public static function normalizeName(string $firstName, string $lastName): string
-    {
-        $firstName = self::normalizeText($firstName);
-        $lastName = self::normalizeText($lastName);
+	private static function text( mixed $value ): string {
+		return is_scalar( $value ) ? (string) $value : '';
+	}
 
-        return trim($firstName . ' ' . $lastName);
-    }
+	public static function normalizeEmail( string $value ): string {
+		return strtolower( trim( $value ) );
+	}
 
-    public static function normalizeAddress(string $address, string $postcode, string $country): string
-    {
-        $address = self::normalizeText($address);
-        $postcode = preg_replace('/\s+/', '', self::normalizeText($postcode)) ?? '';
-        $country = self::normalizeText($country);
+	public static function normalizeName( string $firstName, string $lastName ): string {
+		$firstName = self::normalizeText( $firstName );
+		$lastName  = self::normalizeText( $lastName );
 
-        if ($address === '' || $postcode === '' || $country === '') {
-            return '';
-        }
+		return trim( $firstName . ' ' . $lastName );
+	}
 
-        return $address . '|' . $postcode . '|' . $country;
-    }
+	public static function normalizeAddress( string $address, string $postcode, string $country ): string {
+		$address  = self::normalizeText( $address );
+		$postcode = preg_replace( '/\s+/', '', self::normalizeText( $postcode ) ) ?? '';
+		$country  = self::normalizeText( $country );
 
-    public static function normalizeAddressRule(string $rule): ?string
-    {
-        $parts = array_map('trim', explode('|', $rule));
-        if (count($parts) !== 3) {
-            return null;
-        }
+		if ( $address === '' || $postcode === '' || $country === '' ) {
+			return '';
+		}
 
-        $normalized = self::normalizeText($parts[0]) . '|' .
-            (preg_replace('/\s+/', '', self::normalizeText($parts[1])) ?? '') . '|' .
-            self::normalizeText($parts[2]);
+		return $address . '|' . $postcode . '|' . $country;
+	}
 
-        return in_array('', explode('|', $normalized), true) ? null : $normalized;
-    }
+	public static function normalizeAddressRule( string $rule ): ?string {
+		$parts = array_map( 'trim', explode( '|', $rule ) );
+		if ( count( $parts ) !== 3 ) {
+			return null;
+		}
 
-    public static function normalizeText(string $value): string
-    {
-        $value = trim($value);
-        if (function_exists('remove_accents')) {
-            $value = remove_accents($value);
-        } elseif (function_exists('iconv')) {
-            $converted = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
-            if ($converted !== false) {
-                $value = $converted;
-            }
-        }
+		$normalized = self::normalizeText( $parts[0] ) . '|' .
+			( preg_replace( '/\s+/', '', self::normalizeText( $parts[1] ) ) ?? '' ) . '|' .
+			self::normalizeText( $parts[2] );
 
-        $value = strtolower($value);
-        return preg_replace('/\s+/', ' ', $value) ?? '';
-    }
+		return in_array( '', explode( '|', $normalized ), true ) ? null : $normalized;
+	}
 
-    public static function isValidEmailRule(string $rule): bool
-    {
-        $rule = strtolower(trim($rule));
-        if ($rule === '' || substr_count($rule, '@') !== 1) {
-            return false;
-        }
+	public static function normalizeText( string $value ): string {
+		$value = trim( $value );
+		if ( function_exists( 'remove_accents' ) ) {
+			$value = remove_accents( $value );
+		} elseif ( function_exists( 'iconv' ) ) {
+			$converted = iconv( 'UTF-8', 'ASCII//TRANSLIT//IGNORE', $value );
+			if ( $converted !== false ) {
+				$value = $converted;
+			}
+		}
 
-        [$local, $domain] = explode('@', $rule, 2);
-        $local = str_replace('*', 'placeholder', $local);
-        $domain = str_replace('*', 'example', $domain);
-        if ($local === '') {
-            $local = 'placeholder';
-        }
+		$value = strtolower( $value );
+		return preg_replace( '/\s+/', ' ', $value ) ?? '';
+	}
 
-        return filter_var($local . '@' . $domain, FILTER_VALIDATE_EMAIL) !== false;
-    }
+	public static function isValidEmailRule( string $rule ): bool {
+		$rule = strtolower( trim( $rule ) );
+		if ( $rule === '' || substr_count( $rule, '@' ) !== 1 ) {
+			return false;
+		}
+
+		[$local, $domain] = explode( '@', $rule, 2 );
+		$local            = str_replace( '*', 'placeholder', $local );
+		$domain           = str_replace( '*', 'example', $domain );
+		if ( $local === '' ) {
+			$local = 'placeholder';
+		}
+
+		return filter_var( $local . '@' . $domain, FILTER_VALIDATE_EMAIL ) !== false;
+	}
 }

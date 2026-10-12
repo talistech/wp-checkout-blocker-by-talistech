@@ -1,11 +1,11 @@
-=== Checkout Blocker by Talistech BV ===
+=== Checkout Blocker by Talistech ===
 Contributors: talistech
 Tags: woocommerce, checkout, blocklist, fraud prevention, security
 Requires at least: 7.0
 Requires PHP: 8.1
 Requires Plugins: woocommerce
-Tested up to: 7.0
-Stable tag: 1.1.1
+Tested up to: 7.1
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,7 +13,7 @@ Block WooCommerce checkout by email address, full billing name, or billing addre
 
 == Description ==
 
-Checkout Blocker by Talistech BV prevents selected customers from placing WooCommerce orders. It validates checkout data on the server and supports both the classic checkout and the block-based Checkout.
+Checkout Blocker by Talistech prevents selected customers from placing WooCommerce orders. It validates checkout data on the server and supports both the classic checkout and the block-based Checkout, including HPOS order storage. For signed-in customers, email rules check both the account email and the billing email; name and address rules use the submitted billing details.
 
 Rules can match:
 
@@ -21,9 +21,14 @@ Rules can match:
 * Exact full billing names and wildcard name patterns.
 * Billing addresses using street, postcode, and country components.
 
-The plugin can show a custom customer notice, notify administrators, force matching users to log out, and destroy active sessions for exact blocked email addresses.
+The plugin can show a custom customer notice, notify administrators, force matching customers to log out, and destroy active sessions for exact blocked email addresses. Administrators and shop managers are protected from forced logout and session destruction.
 
 No external service, account, or tracking dependency is used.
+
+== Screenshots ==
+
+1. The actual settings page with email, full-name and billing-address rules, a custom checkout notice and optional account controls. All entered rules are synthetic demo data.
+2. A real classic WooCommerce checkout refused by an email rule, showing the custom customer notice. Customer details and the product are fictitious.
 
 == Installation ==
 
@@ -69,7 +74,7 @@ Yes. Both classic and block-based checkout are validated on the server when the 
 
 No. It matches addresses directly on example.com. Use a wildcard rule when subdomains should match as well.
 
-= Does the plugin send data to Talistech BV? =
+= Does the plugin send data to Talistech? =
 
 No. The plugin has no external service or tracking connection. If administrator notifications are enabled, checkout details are sent through your own WordPress mail configuration.
 
@@ -77,11 +82,32 @@ No. The plugin has no external service or tracking connection. If administrator 
 
 The notification can include the customer's name, email address, billing address, IP address, user agent, date, and checkout URL. Enable it only when this fits your privacy policy.
 
+== Privacy ==
+
+Rules containing email addresses, names and addresses are stored in this site's WordPress options until removed by an administrator or the plugin is uninstalled. Administrator notifications are disabled by default. If enabled, checkout details are sent through the site's mail configuration; retention of these emails depends on your mail provider and shop policies. No data is sent to Talistech.
+
+Notifications may contain billing and account email addresses, billing name and address, IP address, user agent and date. Checkout URLs exclude query parameters. Notifications are limited to one per IP address per ten minutes and sixty per site per hour. Only keyed IP hashes and counters are stored for throttling; expired hashes are pruned on the next notification attempt. Mail failures do not unblock checkout.
+
+The WordPress privacy policy guide includes suggested text. Adapt it to your shop. Uninstalling removes plugin settings, notification limits and legacy notification transients from all sites in a multisite installation. Deactivation retains settings.
+
+== Support ==
+
+Visit https://www.talistech.com or report issues at https://github.com/talistech/wp-checkout-blocker-by-talistech. Do not include customer personal data in public reports.
+
 == WP-CLI ==
 
 Use `wp talistech-cb list --type=email`, `add`, `remove`, and `destroy_sessions` to manage rules and exact-email sessions.
 
 == Changelog ==
+
+= 1.2.0 =
+
+* Renamed to Checkout Blocker by Talistech and updated author and website links.
+* Check account and billing email addresses to prevent signed-in checkout bypasses.
+* Protect administrators and shop managers from forced logout and session destruction.
+* Harden notification limits, local redirects and settings validation.
+* Add HPOS compatibility, privacy guidance and multisite data cleanup.
+* Add reproducible release builds and checkout integration verification.
 
 = 1.1.1 =
 

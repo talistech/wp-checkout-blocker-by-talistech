@@ -1,154 +1,231 @@
 <?php
+/**
+ * Settings integration for Checkout Blocker.
+ *
+ * @package TalistechCheckoutBlocker
+ */
 
 declare(strict_types=1);
 
 namespace Talistech\CheckoutBlocker;
 
-final class Settings
-{
-    public const OPTION_KEY = 'talistech_checkout_blocker_settings';
-    public const OPTION_GROUP = 'talistech_checkout_blocker';
-    public const PAGE_SLUG = 'talistech-checkout-blocker';
+/** Validate and retain site-specific checkout rules. */
+final class Settings {
 
-    /**
-     * @return array<string, mixed>
-     */
-    public static function defaults(): array
-    {
-        return [
-            'email_rules' => '',
-            'name_rules' => '',
-            'address_rules' => '',
-            'notice_text' => __('Checkout is not available for this account. Please contact support.', 'talistech-checkout-blocker'),
-            'notify_admins' => 0,
-            'force_logout' => 0,
-            'logout_redirect' => home_url('/'),
-        ];
-    }
+	public const OPTION_KEY   = 'talistech_checkout_blocker_settings';
+	public const OPTION_GROUP = 'talistech_checkout_blocker';
+	public const PAGE_SLUG    = 'talistech-checkout-blocker';
 
-    public static function activate(): void
-    {
-        if (get_option(self::OPTION_KEY, null) === null) {
-            add_option(self::OPTION_KEY, self::defaults());
-        }
-    }
+	/**
+	 * Return safe settings defaults.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function defaults(): array {
+		return array(
+			'email_rules'     => '',
+			'name_rules'      => '',
+			'address_rules'   => '',
+			'notice_text'     => __( 'Checkout is not available for this account. Please contact support.', 'checkout-blocker-by-talistech' ),
+			'notify_admins'   => 0,
+			'force_logout'    => 0,
+			'logout_redirect' => home_url( '/' ),
+		);
+	}
 
-    /**
-     * @return array<string, mixed>
-     */
-    public static function get(): array
-    {
-        $settings = get_option(self::OPTION_KEY, []);
-        if (! is_array($settings)) {
-            $settings = [];
-        }
+	public static function activate( bool $networkWide = false ): void {
+		if ( is_multisite() && $networkWide ) {
+			$offset = 0;
+			do {
+				$sites = get_sites(
+					array(
+						'fields' => 'ids',
+						'number' => 100,
+						'offset' => $offset,
+					)
+				);
+				foreach ( $sites as $siteId ) {
+					switch_to_blog( (int) $siteId );
+					try {
+						self::activate();
+					} finally {
+						restore_current_blog();
+					}
+				}
+				$siteCount = count( $sites );
+				$offset   += $siteCount;
+			} while ( $siteCount === 100 );
+			return;
+		}
+		if ( get_option( self::OPTION_KEY, null ) === null ) {
+			add_option( self::OPTION_KEY, self::defaults(), '', false );
+		}
+	}
 
-        return array_merge(self::defaults(), $settings);
-    }
+	public static function initializeSite( \WP_Site $site ): void {
+		if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		if ( ! is_plugin_active_for_network( plugin_basename( TCB_PLUGIN_FILE ) ) ) {
+			return;
+		}
+		switch_to_blog( (int) $site->blog_id );
+		try {
+			self::activate();
+		} finally {
+			restore_current_blog();
+		}
+	}
 
-    public static function register(): void
-    {
-        register_setting(self::OPTION_GROUP, self::OPTION_KEY, [
-            'type' => 'array',
-            'sanitize_callback' => [self::class, 'sanitize'],
-            'default' => self::defaults(),
-            'show_in_rest' => false,
-        ]);
-    }
+	/**
+	 * Read settings, replacing unexpected types with safe defaults.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function get(): array {
+		$settings = get_option( self::OPTION_KEY, array() );
+		if ( ! is_array( $settings ) ) {
+			$settings = array();
+		}
 
-    /**
-     * @param mixed $input
-     * @return array<string, mixed>
-     */
-    public static function sanitize(mixed $input): array
-    {
-        $input = is_array($input) ? $input : [];
-        $output = self::defaults();
+		$defaults = self::defaults();
+		foreach ( $defaults as $key => $default ) {
+			if ( is_string( $default ) ) {
+				$defaults[ $key ] = is_string( $settings[ $key ] ?? null ) ? $settings[ $key ] : $default;
+			} else {
+				$defaults[ $key ] = self::checkbox( $settings[ $key ] ?? 0 );
+			}
+		}
+		return $defaults;
+	}
 
-        foreach (['email_rules', 'name_rules', 'address_rules'] as $key) {
-            [$clean, $invalid] = self::sanitizeLines((string) ($input[$key] ?? ''), $key);
-            $output[$key] = $clean;
+	public static function register(): void {
+		register_setting(
+			self::OPTION_GROUP,
+			self::OPTION_KEY,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( self::class, 'sanitize' ),
+				'default'           => self::defaults(),
+				'show_in_rest'      => false,
+			)
+		);
+	}
 
-            if ($invalid !== []) {
-                $label = match ($key) {
-                    'email_rules' => __('email', 'talistech-checkout-blocker'),
-                    'name_rules' => __('name', 'talistech-checkout-blocker'),
-                    default => __('address', 'talistech-checkout-blocker'),
-                };
-                add_settings_error(
-                    self::OPTION_KEY,
-                    'invalid_' . $key,
-                    sprintf(
-                        /* translators: 1: rule type, 2: invalid values */
-                        __('Some invalid %1$s rules were skipped: %2$s', 'talistech-checkout-blocker'),
-                        $label,
-                        implode(', ', array_slice($invalid, 0, 5))
-                    ),
-                    'warning'
-                );
-            }
-        }
+	/**
+	 * Validate submitted settings and report invalid rules.
+	 *
+	 * @param mixed $input
+	 * @return array<string, mixed>
+	 */
+	public static function sanitize( mixed $input ): array {
+		$input  = is_array( $input ) ? $input : array();
+		$output = self::defaults();
 
-        $notice = sanitize_text_field((string) ($input['notice_text'] ?? ''));
-        $output['notice_text'] = $notice !== '' ? $notice : self::defaults()['notice_text'];
-        $output['notify_admins'] = empty($input['notify_admins']) ? 0 : 1;
-        $output['force_logout'] = empty($input['force_logout']) ? 0 : 1;
-        $redirect = esc_url_raw((string) ($input['logout_redirect'] ?? ''));
-        $output['logout_redirect'] = $redirect !== '' ? $redirect : home_url('/');
+		foreach ( array( 'email_rules', 'name_rules', 'address_rules' ) as $key ) {
+			[$clean, $invalid] = self::sanitizeLines( self::text( $input[ $key ] ?? '' ), $key );
+			$output[ $key ]    = $clean;
 
-        return $output;
-    }
+			if ( $invalid !== array() ) {
+				$label = match ( $key ) {
+					'email_rules' => __( 'email', 'checkout-blocker-by-talistech' ),
+					'name_rules' => __( 'name', 'checkout-blocker-by-talistech' ),
+					default => __( 'address', 'checkout-blocker-by-talistech' ),
+				};
+				add_settings_error(
+					self::OPTION_KEY,
+					'invalid_' . $key,
+					sprintf(
+						/* translators: 1: rule type, 2: invalid values */
+						__( 'Some invalid %1$s rules were skipped: %2$s', 'checkout-blocker-by-talistech' ),
+						$label,
+						implode( ', ', array_slice( $invalid, 0, 5 ) )
+					),
+					'warning'
+				);
+			}
+		}
 
-    public static function normalizeRule(string $value, string $type): ?string
-    {
-        $value = trim($value);
-        if ($value === '') {
-            return null;
-        }
+		$notice                    = sanitize_text_field( self::text( $input['notice_text'] ?? '' ) );
+		$output['notice_text']     = $notice !== '' ? $notice : self::defaults()['notice_text'];
+		$output['notify_admins']   = self::checkbox( $input['notify_admins'] ?? 0 );
+		$output['force_logout']    = self::checkbox( $input['force_logout'] ?? 0 );
+		$output['logout_redirect'] = self::localRedirect( $input['logout_redirect'] ?? '' );
 
-        if ($type === 'email_rules') {
-            $value = strtolower($value);
-            return RuleMatcher::isValidEmailRule($value) ? $value : null;
-        }
+		return $output;
+	}
 
-        if ($type === 'name_rules') {
-            $value = RuleMatcher::normalizeText($value);
-            return $value !== '' ? $value : null;
-        }
+	public static function localRedirect( mixed $value ): string {
+		$fallback = home_url( '/' );
+		$redirect = esc_url_raw( self::text( $value ) );
+		$host     = wp_parse_url( $redirect, PHP_URL_HOST );
+		$scheme   = wp_parse_url( $redirect, PHP_URL_SCHEME );
+		if ( $redirect === '' || $host === null || ! in_array( $scheme, array( 'http', 'https' ), true )
+			|| strtolower( (string) $host ) !== strtolower( (string) wp_parse_url( $fallback, PHP_URL_HOST ) )
+			|| wp_parse_url( $redirect, PHP_URL_USER ) !== null || wp_parse_url( $redirect, PHP_URL_PASS ) !== null ) {
+			return $fallback;
+		}
+		return wp_validate_redirect( $redirect, $fallback );
+	}
 
-        if ($type === 'address_rules') {
-            return RuleMatcher::normalizeAddressRule($value);
-        }
+	private static function text( mixed $value ): string {
+		return is_scalar( $value ) ? (string) $value : '';
+	}
 
-        return null;
-    }
+	private static function checkbox( mixed $value ): int {
+		return in_array( $value, array( 1, '1', true ), true ) ? 1 : 0;
+	}
 
-    /**
-     * @return array{0: string, 1: list<string>}
-     */
-    private static function sanitizeLines(string $raw, string $type): array
-    {
-        $lines = preg_split('/\R+/', $raw) ?: [];
-        $valid = [];
-        $invalid = [];
+	public static function normalizeRule( string $value, string $type ): ?string {
+		$value = trim( sanitize_text_field( $value ) );
+		if ( $value === '' ) {
+			return null;
+		}
 
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if ($line === '') {
-                continue;
-            }
+		if ( $type === 'email_rules' ) {
+			$value = strtolower( $value );
+			return RuleMatcher::isValidEmailRule( $value ) ? $value : null;
+		}
 
-            $normalized = self::normalizeRule($line, $type);
-            if ($normalized === null) {
-                if ($type !== 'name_rules') {
-                    $invalid[] = $type === 'email_rules' ? strtolower($line) : $line;
-                }
-                continue;
-            }
+		if ( $type === 'name_rules' ) {
+			$value = RuleMatcher::normalizeText( $value );
+			return $value !== '' ? $value : null;
+		}
 
-            $valid[] = $normalized;
-        }
+		if ( $type === 'address_rules' ) {
+			return RuleMatcher::normalizeAddressRule( $value );
+		}
 
-        return [implode("\n", array_values(array_unique($valid))), array_values(array_unique($invalid))];
-    }
+		return null;
+	}
+
+	/**
+	 * Normalize and deduplicate rules for a category.
+	 *
+	 * @return array{0: string, 1: list<string>}
+	 */
+	private static function sanitizeLines( string $raw, string $type ): array {
+		$lines   = preg_split( '/\R+/', $raw ) ?: array();
+		$valid   = array();
+		$invalid = array();
+
+		foreach ( $lines as $line ) {
+			$line = trim( $line );
+			if ( $line === '' ) {
+				continue;
+			}
+
+			$normalized = self::normalizeRule( $line, $type );
+			if ( $normalized === null ) {
+				if ( $type !== 'name_rules' ) {
+					$invalid[] = $type === 'email_rules' ? strtolower( $line ) : $line;
+				}
+				continue;
+			}
+
+			$valid[] = $normalized;
+		}
+
+		return array( implode( "\n", array_values( array_unique( $valid ) ) ), array_values( array_unique( $invalid ) ) );
+	}
 }

@@ -1,4 +1,9 @@
 <?php
+/**
+ * WooCommerce integration for Checkout Blocker.
+ *
+ * @package TalistechCheckoutBlocker
+ */
 
 declare(strict_types=1);
 
@@ -6,148 +11,156 @@ namespace Talistech\CheckoutBlocker;
 
 use WP_Error;
 
-final class WooCommerce
-{
-    public function __construct(
-        private readonly RuleMatcher $matcher,
-        private readonly Notifications $notifications
-    ) {
-    }
+/** Reject matching checkout submissions before payment. */
+final class WooCommerce {
 
-    public function register(): void
-    {
-        add_action('woocommerce_after_checkout_validation', [$this, 'validateClassicCheckout'], 10, 2);
-        add_action('woocommerce_checkout_validate_order_before_payment', [$this, 'validateBlocksCheckout'], 10, 2);
-        add_action('template_redirect', [$this, 'maybeForceLogout'], 1);
-    }
+	public function __construct(
+		private readonly RuleMatcher $matcher,
+		private readonly Notifications $notifications
+	) {
+	}
 
-    /**
-     * @param array<string, mixed> $data
-     */
-    public function validateClassicCheckout(array $data, WP_Error $errors): void
-    {
-        $context = $this->contextFromArray($data);
-        $match = $this->matcher->match($context);
-        if ($match === null) {
-            return;
-        }
+	public function register(): void {
+		add_action( 'woocommerce_after_checkout_validation', array( $this, 'validateClassicCheckout' ), 10, 2 );
+		add_action( 'woocommerce_checkout_validate_order_before_payment', array( $this, 'validateBlocksCheckout' ), 10, 2 );
+		add_action( 'template_redirect', array( $this, 'maybeForceLogout' ), 1 );
+	}
 
-        $errors->add('talistech_checkout_blocked', $this->notice());
-        $this->notifications->maybeSend($match, $context);
-    }
+	/**
+	 * Add a blocking error to classic checkout validation.
+	 *
+	 * @param array<string, mixed> $data
+	 */
+	public function validateClassicCheckout( array $data, WP_Error $errors ): void {
+		$context = $this->contextFromArray( $data );
+		$match   = $this->matcher->match( $context );
+		if ( $match === null ) {
+			return;
+		}
 
-    public function validateBlocksCheckout(object $order, WP_Error $errors): void
-    {
-        if (! is_a($order, 'WC_Order')) {
-            return;
-        }
+		$errors->add( 'talistech_checkout_blocked', $this->notice() );
+		$this->notifications->maybeSend( $match, $context );
+	}
 
-        $context = $this->contextFromOrder($order);
-        $match = $this->matcher->match($context);
-        if ($match === null) {
-            return;
-        }
+	public function validateBlocksCheckout( object $order, WP_Error $errors ): void {
+		if ( ! is_a( $order, 'WC_Order' ) ) {
+			return;
+		}
 
-        $errors->add('talistech_checkout_blocked', $this->notice());
-        $this->notifications->maybeSend($match, $context);
-    }
+		$context = $this->contextFromOrder( $order );
+		$match   = $this->matcher->match( $context );
+		if ( $match === null ) {
+			return;
+		}
 
-    public function maybeForceLogout(): void
-    {
-        if (empty(Settings::get()['force_logout']) || ! is_user_logged_in() || is_admin() || wp_doing_ajax()) {
-            return;
-        }
-        if (defined('REST_REQUEST') && REST_REQUEST) {
-            return;
-        }
+		$errors->add( 'talistech_checkout_blocked', $this->notice() );
+		$this->notifications->maybeSend( $match, $context );
+	}
 
-        $user = wp_get_current_user();
-        $email = $user instanceof \WP_User ? (string) $user->user_email : '';
-        if ($email === '' || $this->matcher->match(['email' => $email]) === null) {
-            return;
-        }
+	public function maybeForceLogout(): void {
+		if ( empty( Settings::get()['force_logout'] ) || ! is_user_logged_in() || is_admin() || wp_doing_ajax() ) {
+			return;
+		}
+		if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			return;
+		}
 
-        /** @var \WP_User $user */
-        do_action('talistech_checkout_blocker_user_blocked', $user);
-        wp_logout();
-        wp_safe_redirect(esc_url_raw((string) (Settings::get()['logout_redirect'] ?? home_url('/'))));
-        exit;
-    }
+		$user = wp_get_current_user();
+		if ( ! $user instanceof \WP_User || Sessions::isProtected( $user ) ) {
+			return;
+		}
+		$email = $user instanceof \WP_User ? (string) $user->user_email : '';
+		if ( $email === '' || $this->matcher->match( array( 'email' => $email ) ) === null ) {
+			return;
+		}
 
-    /**
-     * @param array<string, mixed> $data
-     * @return array<string, string>
-     */
-    private function contextFromArray(array $data): array
-    {
-        $context = [
-            'email' => $this->text($data['billing_email'] ?? ''),
-            'first_name' => $this->text($data['billing_first_name'] ?? ''),
-            'last_name' => $this->text($data['billing_last_name'] ?? ''),
-            'address_1' => $this->text($data['billing_address_1'] ?? ''),
-            'postcode' => $this->text($data['billing_postcode'] ?? ''),
-            'country' => $this->text($data['billing_country'] ?? ''),
-        ];
+		do_action( 'talistech_checkout_blocker_user_blocked', $user );
+		wp_logout();
+		wp_safe_redirect( Settings::localRedirect( Settings::get()['logout_redirect'] ?? '' ) );
+		exit;
+	}
 
-        return $this->completeContext($context);
-    }
+	/**
+	 * Build matching context from submitted billing details.
+	 *
+	 * @param array<string, mixed> $data
+	 * @return array<string, string>
+	 */
+	private function contextFromArray( array $data ): array {
+		$context = array(
+			'email'      => $this->text( $data['billing_email'] ?? '' ),
+			'first_name' => $this->text( $data['billing_first_name'] ?? '' ),
+			'last_name'  => $this->text( $data['billing_last_name'] ?? '' ),
+			'address_1'  => $this->text( $data['billing_address_1'] ?? '' ),
+			'postcode'   => $this->text( $data['billing_postcode'] ?? '' ),
+			'country'    => $this->text( $data['billing_country'] ?? '' ),
+		);
 
-    /**
-     * @return array<string, string>
-     */
-    private function contextFromOrder(object $order): array
-    {
-        $context = [
-            'email' => $this->text($order->get_billing_email()),
-            'first_name' => $this->text($order->get_billing_first_name()),
-            'last_name' => $this->text($order->get_billing_last_name()),
-            'address_1' => $this->text($order->get_billing_address_1()),
-            'postcode' => $this->text($order->get_billing_postcode()),
-            'country' => $this->text($order->get_billing_country()),
-        ];
+		return $this->completeContext( $context );
+	}
 
-        return $this->completeContext($context);
-    }
+	/**
+	 * Build matching context from an order populated by the Store API.
+	 *
+	 * @return array<string, string>
+	 */
+	private function contextFromOrder( object $order ): array {
+		$context = array(
+			'email'      => $this->text( $order->get_billing_email() ),
+			'first_name' => $this->text( $order->get_billing_first_name() ),
+			'last_name'  => $this->text( $order->get_billing_last_name() ),
+			'address_1'  => $this->text( $order->get_billing_address_1() ),
+			'postcode'   => $this->text( $order->get_billing_postcode() ),
+			'country'    => $this->text( $order->get_billing_country() ),
+		);
 
-    /**
-     * @param array<string, string> $context
-     * @return array<string, string>
-     */
-    private function completeContext(array $context): array
-    {
-        if (is_user_logged_in()) {
-            $user = wp_get_current_user();
-            if ($user instanceof \WP_User) {
-                $context['email'] = $context['email'] !== '' ? $context['email'] : (string) $user->user_email;
-                $context['first_name'] = $context['first_name'] !== '' ? $context['first_name'] : (string) $user->first_name;
-                $context['last_name'] = $context['last_name'] !== '' ? $context['last_name'] : (string) $user->last_name;
-                $context['address_1'] = $context['address_1'] !== '' ? $context['address_1'] : (string) get_user_meta($user->ID, 'billing_address_1', true);
-                $context['postcode'] = $context['postcode'] !== '' ? $context['postcode'] : (string) get_user_meta($user->ID, 'billing_postcode', true);
-                $context['country'] = $context['country'] !== '' ? $context['country'] : (string) get_user_meta($user->ID, 'billing_country', true);
-            }
-        }
+		return $this->completeContext( $context );
+	}
 
-        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash((string) $_SERVER['REMOTE_ADDR'])) : '';
-        $userAgent = isset($_SERVER['HTTP_USER_AGENT'])
-            ? substr(sanitize_text_field(wp_unslash((string) $_SERVER['HTTP_USER_AGENT'])), 0, 512)
-            : '';
-        $requestUri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw(wp_unslash((string) $_SERVER['REQUEST_URI'])) : '/';
+	/**
+	 * Add the authenticated account email and notification context.
+	 *
+	 * @param array<string, string> $context
+	 * @return array<string, string>
+	 */
+	private function completeContext( array $context ): array {
+		$context['account_email'] = '';
+		if ( is_user_logged_in() ) {
+			$user = wp_get_current_user();
+			if ( $user instanceof \WP_User ) {
+				$context['account_email'] = $this->text( $user->user_email );
+			}
+		}
 
-        return array_merge($context, [
-            'ip' => $ip,
-            'user_agent' => $userAgent,
-            'url' => home_url($requestUri),
-        ]);
-    }
+		$ip        = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$userAgent = isset( $_SERVER['HTTP_USER_AGENT'] )
+			? substr( sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_USER_AGENT'] ) ), 0, 512 )
+			: '';
+		// Do not include query parameters, which can contain tokens or other private data.
+		$requestUri = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( esc_url_raw( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH ) : '/';
+		$homeParts  = wp_parse_url( home_url( '/' ) );
+		$origin     = $homeParts['scheme'] . '://' . $homeParts['host'];
+		if ( isset( $homeParts['port'] ) ) {
+			$origin .= ':' . $homeParts['port'];
+		}
 
-    private function text(mixed $value): string
-    {
-        return sanitize_text_field(wp_unslash((string) $value));
-    }
+		return array_merge(
+			$context,
+			array(
+				'ip'         => $ip,
+				'user_agent' => $userAgent,
+				'url'        => $origin . ( is_string( $requestUri ) ? $requestUri : '/' ),
+			)
+		);
+	}
 
-    private function notice(): string
-    {
-        $notice = (string) (Settings::get()['notice_text'] ?? '');
-        return $notice !== '' ? $notice : __('Checkout is not available for this account. Please contact support.', 'talistech-checkout-blocker');
-    }
+	private function text( mixed $value ): string {
+		// WooCommerce has already unslashed submitted values; order getters are also unslashed.
+		return is_scalar( $value ) ? sanitize_text_field( (string) $value ) : '';
+	}
+
+	private function notice(): string {
+		$notice = (string) ( Settings::get()['notice_text'] ?? '' );
+		return $notice !== '' ? $notice : __( 'Checkout is not available for this account. Please contact support.', 'checkout-blocker-by-talistech' );
+	}
 }

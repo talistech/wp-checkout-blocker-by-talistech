@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<ruleset name="Talistech Checkout Blocker">
+    <description>WordPress security and coding standards with PHP 8.1 compatibility.</description>
+    <file>checkout-blocker-by-talistech.php</file>
+    <file>uninstall.php</file>
+    <file>src</file>
+    <arg name="extensions" value="php"/>
+    <arg value="sp"/>
+    <config name="testVersion" value="8.1-"/>
+    <rule ref="WordPress">
+        <!-- Preserve existing public callback names, PSR-4 paths and typed PHP API. -->
+        <exclude name="WordPress.NamingConventions.ValidFunctionName"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName"/>
+        <exclude name="WordPress.Files.FileName"/>
+        <exclude name="Squiz.Commenting.FunctionComment"/>
+        <!-- Keep the existing comparison style and explicit empty-array fallbacks. -->
+        <exclude name="WordPress.PHP.YodaConditions"/>
+        <exclude name="Universal.Operators.DisallowShortTernary"/>
+        <!-- Keep the existing comparison style and explicit empty-array fallbacks. -->
+        <exclude name="WordPress.PHP.YodaConditions"/>
+        <exclude name="Universal.Operators.DisallowShortTernary"/>
+    </rule>
+    <rule ref="WordPress.WP.Capabilities">
+        <properties><property name="custom_capabilities" type="array"><element value="manage_woocommerce"/></property></properties>
+    </rule>
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="checkout-blocker-by-talistech"/>
+            </property>
+        </properties>
+    </rule>
+    <rule ref="WordPress.WP.Capabilities">
+        <properties><property name="custom_capabilities" type="array"><element value="manage_woocommerce"/></property></properties>
+    </rule>
+    <rule ref="PHPCompatibilityWP"/>
+</ruleset>
