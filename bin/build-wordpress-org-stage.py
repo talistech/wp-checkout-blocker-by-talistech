@@ -6,7 +6,7 @@ import shutil
 import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
-SLUG = "checkout-blocker-by-talistech"
+SLUG = "talistech-checkout-blocker-for-woocommerce"
 version = re.search(r"\* Version: ([\d.]+)", (ROOT / f"{SLUG}.php").read_text()).group(1)
 release = ROOT / "dist" / f"{SLUG}-{version}.zip"
 stage = ROOT / "dist/wordpress-org"

@@ -3,10 +3,11 @@
 from pathlib import Path
 import hashlib
 import re
+import shutil
 import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
-SLUG = "checkout-blocker-by-talistech"
+SLUG = "talistech-checkout-blocker-for-woocommerce"
 main = (ROOT / f"{SLUG}.php").read_text()
 version = re.search(r"\* Version: ([\d.]+)", main).group(1)
 readme = (ROOT / "readme.txt").read_text()
@@ -19,7 +20,7 @@ assert f"Stable tag: {version}" in readme, "Readme and plugin versions differ"
 assert re.search(r"TCB_VERSION\s*=\s*'" + re.escape(version) + "'", main), "Runtime and header versions differ"
 assert f"Text Domain: {SLUG}" in main, "Text domain must match the directory slug"
 assert "Update URI:" not in main, "WordPress.org release must use WordPress.org updates"
-assert headers.get("Plugin Name") == "Checkout Blocker by Talistech", "Use the submission-compliant display name"
+assert headers.get("Plugin Name") == "Talistech Checkout Blocker for WooCommerce", "Use the submission-compliant display name"
 assert f"=== {headers['Plugin Name']} ===" in readme, "Readme and plugin names differ"
 files = [ROOT / f"{SLUG}.php", ROOT / "uninstall.php", ROOT / "readme.txt", ROOT / "LICENSE"]
 for directory, extension in [("src", ".php"), ("assets", ".css"), ("languages", ".pot"), ("languages", ".po"), ("languages", ".mo")]:
@@ -35,5 +36,10 @@ with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED, compres
         archive.writestr(entry, path.read_bytes(), compresslevel=9)
 with zipfile.ZipFile(destination) as archive:
     assert archive.testzip() is None, "ZIP integrity check failed"
+submission = ROOT / "dist" / f"{SLUG}.zip"
+shutil.copyfile(destination, submission)
+assert submission.read_bytes() == destination.read_bytes()
+submission.with_suffix('.zip.sha256').write_text(hashlib.sha256(submission.read_bytes()).hexdigest() + '  ' + submission.name + '\n')
 print(f"Built {destination.relative_to(ROOT)} ({destination.stat().st_size} bytes)")
 print(f"SHA256 {hashlib.sha256(destination.read_bytes()).hexdigest()}")
+print(f"Upload {submission.relative_to(ROOT)}")

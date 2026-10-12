@@ -42,8 +42,8 @@ async function main() {
     item.sha256 = crypto.createHash('sha256').update(bytes).digest('hex');
   }
   await fs.writeFile(path.join(media, 'manifest.json'), JSON.stringify({
-    plugin: 'Checkout Blocker by Talistech', version: '1.2.0',
-    slug: 'checkout-blocker-by-talistech', generator: 'Built-in imagegen; agent-browser for real screenshots',
+    plugin: 'Talistech Checkout Blocker for WooCommerce', version: '1.2.1',
+    slug: 'talistech-checkout-blocker-for-woocommerce', generator: 'Built-in imagegen; Playwright / Chromium for real screenshots',
     files: manifest,
   }, null, 2) + '\n');
   console.log(`Verified ${manifest.length} PNG deliverables: exact dimensions, PNG integrity and WordPress.org size limits.`);

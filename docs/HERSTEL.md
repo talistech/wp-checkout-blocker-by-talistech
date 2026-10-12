@@ -34,3 +34,7 @@ Het herstel staat op de lokale branch `recovery/1.2.0`. Er is niets naar GitHub 
 Vendor en node_modules zijn uitgesloten van de back-up. Afhankelijkheden kunnen met `composer install` en `npm ci` opnieuw worden geïnstalleerd. De mediabibliotheek gebruikt `npm ci --prefix verification/media-tools`.
 
 De bewaarde sessie en gereconstrueerde handelingen staan onder `verification/recovery/`. De nieuwe pakketcontroles staan onder `verification/package/`.
+
+## Vervolg
+
+Dit verslag beschrijft uitsluitend de historische herstelactie. De herstelcommit is later als a73f783 naar de bestaande GitHub-repository gepusht. De actuele pluginidentiteit en herindieningsinstructies staan in PUBLISHING.md; oude namen en back-uppaden hieronder zijn historische provenance.

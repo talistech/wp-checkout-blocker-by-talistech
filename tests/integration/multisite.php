@@ -40,6 +40,23 @@ if (TCB_MULTISITE_PHASE === 'active') {
     switch_to_blog(end($ids));
     $check(is_array(get_option($settingsKey)), 'Network activation initializes a newly created site');
     restore_current_blog();
+    // Sessions are network-wide; management privileges on another site must protect the user.
+    $manager = get_user_by('login', 'tcb-test-manager');
+    $primaryId = get_current_blog_id();
+    remove_user_from_blog($manager->ID, $primaryId);
+    add_user_to_blog($ids[1], $manager->ID, 'administrator');
+    $manager = new WP_User($manager->ID);
+    $check(Talistech\CheckoutBlocker\Sessions::isProtected($manager), 'Management privileges on another site protect network-wide sessions');
+    $priorSettings = get_option($settingsKey);
+    update_option($settingsKey, array_merge($priorSettings, ['email_rules' => $manager->user_email]));
+    WP_Session_Tokens::get_instance($manager->ID)->create(time() + 3600);
+    $check((new Talistech\CheckoutBlocker\Sessions())->destroyExactEmailSessions() === 0, 'Cross-site manager sessions are not destroyed');
+    wp_set_current_user($manager->ID);
+    update_option($settingsKey, array_merge(get_option($settingsKey), ['force_logout' => 1]));
+    (new Talistech\CheckoutBlocker\WooCommerce(new Talistech\CheckoutBlocker\RuleMatcher(get_option($settingsKey)), new Talistech\CheckoutBlocker\Notifications()))->maybeForceLogout();
+    $check(get_current_user_id() === $manager->ID, 'Cross-site manager is not forcibly logged out');
+    wp_set_current_user(0);
+    update_option($settingsKey, $priorSettings);
     foreach ($ids as $id) {
         switch_to_blog($id);
         update_option($stateKey, ['count' => 1]);

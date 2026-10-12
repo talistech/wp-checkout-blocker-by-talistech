@@ -19,3 +19,21 @@ for (const filename of ['lib/download-sources.js', 'lib/runtime/docker/download-
     throw new Error('Unexpected wp-env source: ' + filename);
   }
 }
+
+// Parallel CLI commands can read a partially written JSON cache, then overwrite
+// it without the saved runtime. Atomic replacement preserves complete reads.
+// The real notification reservations still run concurrently in the database.
+const cacheTarget = path.join(directory, 'lib/cache.js');
+const cacheOriginal = fs.readFileSync(cacheTarget, 'utf8');
+const cacheOld = "\tawait fs.writeFile(\n\t\tgetPathToCacheFile( options.workDirectoryPath ),\n\t\tJSON.stringify( existingCache )\n\t);";
+const cacheNew = [
+  '\tconst cacheFilePath = getPathToCacheFile( options.workDirectoryPath );',
+  "\tconst temporaryCachePath = `${ cacheFilePath }.${ process.pid }.${ require( 'node:crypto' ).randomUUID() }.tmp`;",
+  '\tawait fs.writeFile( temporaryCachePath, JSON.stringify( existingCache ) );',
+  '\tawait fs.rename( temporaryCachePath, cacheFilePath );',
+].join('\n');
+if (cacheOriginal.includes(cacheOld)) {
+  fs.writeFileSync(cacheTarget, cacheOriginal.replace(cacheOld, cacheNew));
+} else if (!cacheOriginal.includes(cacheNew)) {
+  throw new Error('Unexpected wp-env cache source; review the atomic write patch.');
+}

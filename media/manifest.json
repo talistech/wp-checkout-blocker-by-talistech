@@ -1,8 +1,8 @@
 {
-  "plugin": "Checkout Blocker by Talistech",
-  "version": "1.2.0",
-  "slug": "checkout-blocker-by-talistech",
-  "generator": "Built-in imagegen; agent-browser for real screenshots",
+  "plugin": "Talistech Checkout Blocker for WooCommerce",
+  "version": "1.2.1",
+  "slug": "talistech-checkout-blocker-for-woocommerce",
+  "generator": "Built-in imagegen; Playwright / Chromium for real screenshots",
   "files": [
     {
       "file": "wordpress-org/icon-128x128.png",
@@ -37,8 +37,8 @@
       "height": 250,
       "use": "WordPress.org plugin page banner",
       "source": "imagegen artwork, resampled to required export dimensions",
-      "bytes": 168395,
-      "sha256": "539cd37811e95d77b39523cdbcda77242d8c57d1ed5821c886d2284012d1025c"
+      "bytes": 194394,
+      "sha256": "d3138b3035275d99a48a049b4bed45e6b1fe8e91feb029c6b41621b1e7e7702a"
     },
     {
       "file": "wordpress-org/banner-1544x500.png",
@@ -46,8 +46,8 @@
       "height": 500,
       "use": "WordPress.org Retina plugin page banner",
       "source": "imagegen artwork, resampled to required export dimensions",
-      "bytes": 626319,
-      "sha256": "d458f2d72c5dc0a1bb707c733103d83996fad213c3f29a80e5d2ed742bf0c207"
+      "bytes": 741745,
+      "sha256": "07627356876f9f926ed4ad4a14155ac5a941c6cd09ffd68ea0f5ef4621059a3c"
     },
     {
       "file": "social/social-1200x630.png",
@@ -55,8 +55,8 @@
       "height": 630,
       "use": "Social link preview and landscape announcement",
       "source": "imagegen artwork, resampled to required export dimensions",
-      "bytes": 659418,
-      "sha256": "43126012d7a514fa3c6a31b92a6d7ac00d20f6d542b309e2df4baf00389c3f67"
+      "bytes": 710490,
+      "sha256": "c9f7b30d210ba4864e68fae0c3341e9b13a5c341e0f7f4de603add77b5e3f63e"
     },
     {
       "file": "social/social-1080x1080.png",
@@ -64,26 +64,26 @@
       "height": 1080,
       "use": "Square social announcement",
       "source": "imagegen artwork, resampled to required export dimensions",
-      "bytes": 1021824,
-      "sha256": "9f3cf68711f7dfd0c5b0f367d2191269d141440f641fffb703fbd9dde9082e8c"
+      "bytes": 1118841,
+      "sha256": "de8c1793629aec9941bacce22189a6499b64a631a2e94a1be581bf30bf6247b7"
     },
     {
       "file": "wordpress-org/screenshot-1.png",
       "width": 1238,
-      "height": 1725,
+      "height": 1726,
       "use": "Real plugin settings page with synthetic block rules",
       "source": "Unretouched Chromium element screenshot from local WordPress",
-      "bytes": 258797,
-      "sha256": "c708daa6d1f7b383f474240e2a35ef280bd40555405d4f4a8454629c17b96f28"
+      "bytes": 267114,
+      "sha256": "84c9a9cc122553b6a8a41f8605ca27a8cfd7d2c8bc9d2afd44140cc890590263"
     },
     {
       "file": "wordpress-org/screenshot-2.png",
-      "width": 1063,
-      "height": 1267,
+      "width": 1064,
+      "height": 1269,
       "use": "Real classic checkout refused for blocked@example.com",
       "source": "Unretouched Chromium element screenshot from local WordPress",
-      "bytes": 91138,
-      "sha256": "17cddd8d72f174c41fbaa5a97ac8bb3a2f0f0a4211151c7716052891b45b779f"
+      "bytes": 76486,
+      "sha256": "a598267f50087cb702be5650b95ca5c603c031d959c9905ac25acd72a22d77f2"
     }
   ]
 }

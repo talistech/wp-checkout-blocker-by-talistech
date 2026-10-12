@@ -1,10 +1,10 @@
 {
-  "site": "http://localhost:8895",
-  "wordpress": "7.1.2",
-  "woocommerce": "11.1.2",
-  "plugin": "1.2.0",
+  "site": "http://localhost:8894",
+  "wordpress": "7.1.3",
+  "woocommerce": "11.2.1",
+  "plugin": "1.2.1",
   "theme": "Storefront 4.6.2",
-  "browser": "agent-browser 0.38.2 / Chromium",
+  "browser": "Playwright / Chromium",
   "screenshots": [
     {
       "file": "wordpress-org/screenshot-1.png",

@@ -1,6 +1,6 @@
-# Media pack — Checkout Blocker by Talistech
+# Media pack — Talistech Checkout Blocker for WooCommerce
 
-Version 1.2.0 · Slug `checkout-blocker-by-talistech`
+Version 1.2.1 · Slug `talistech-checkout-blocker-for-woocommerce`
 
 [Open the visual preview](preview/index.html) · [Machine-readable file manifest](manifest.json)
 
@@ -15,8 +15,8 @@ Version 1.2.0 · Slug `checkout-blocker-by-talistech`
 | `wordpress-org/banner-1544x500.png` | 1544 × 500 | WordPress.org Retina plugin page banner |
 | `social/social-1200x630.png` | 1200 × 630 | Social link preview and landscape announcement |
 | `social/social-1080x1080.png` | 1080 × 1080 | Square social announcement |
-| `wordpress-org/screenshot-1.png` | 1238 × 1725 | Real plugin settings page with synthetic block rules |
-| `wordpress-org/screenshot-2.png` | 1063 × 1267 | Real classic checkout refused for blocked@example.com |
+| `wordpress-org/screenshot-1.png` | 1238 × 1726 | Real plugin settings page with synthetic block rules |
+| `wordpress-org/screenshot-2.png` | 1064 × 1269 | Real classic checkout refused for blocked@example.com |
 
 ## Visual direction
 
@@ -26,9 +26,9 @@ The icon has no lettering, so it remains readable at directory sizes. Keep the a
 
 ## Sources and provenance
 
-Artwork was generated with the built-in imagegen tool. Current generated PNG masters are in `sources/`. `prompts.json` records the initial generation; `name-correction-prompts.json` records the imagegen edits that removed the previous WooCommerce display-name wording after the submission form rejected it. Export resizing uses Sharp; it does not retouch the screenshots. These are raster masters, not editable vectors.
+Artwork was generated with the built-in imagegen tool. Current generated PNG masters are in `sources/`. `resubmission-prompts.json` records the new Talistech-first naming edits. Earlier prompt files are historical provenance, not current branding instructions. `prompts.json` records the initial generation; `name-correction-prompts.json` records the imagegen edits that removed the previous WooCommerce display-name wording after the submission form rejected it. Export resizing uses Sharp; it does not retouch the screenshots. These are raster masters, not editable vectors.
 
-Screenshots are genuine Chromium element captures from a local WordPress 7.1.2 / WooCommerce 11.1.2 installation running plugin 1.2.0. The checkout uses Storefront 4.6.2's normal full-width template and the classic checkout shortcode. Its rejection notice appeared after clicking **Place order** with `blocked@example.com`; no notice or interface was fabricated. Only the plugin panel / checkout content was captured, excluding browser chrome, admin navigation, storefront footer and official platform logos. All entered customer details, rules and products are fictitious.
+Screenshots are genuine Chromium element captures from a local WordPress 7.1.3 / WooCommerce 11.2.1 installation running plugin 1.2.1. The checkout uses Storefront 4.6.2's normal full-width template and the classic checkout shortcode. Its rejection notice appeared after clicking **Place order** with `blocked@example.com`; no notice or interface was fabricated. Only the plugin panel / checkout content was captured, excluding browser chrome, admin navigation, storefront footer and official platform logos. All entered customer details, rules and products are fictitious.
 
 `setup-demo.php` documents the local-only demo configuration. It modifies local demo options, pages and a product, and must not be used in a live shop. Authentication cookies and passwords are not included. `capture-notes.json` records the capture conditions.
 

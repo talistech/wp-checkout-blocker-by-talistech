@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise real classic AJAX and Store API checkout before payment, in local wp-env."""
 from pathlib import Path
+import argparse
 import concurrent.futures
 import http.cookiejar
 import json
@@ -11,14 +12,27 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--account-checks-only", action="store_true", help="Run the six admin/logout/notification checks on existing local fixtures")
+arguments = parser.parse_args()
+
 ROOT = Path(__file__).resolve().parents[2]
 BASE = os.environ.get("TCB_TEST_URL", "http://localhost:8894").rstrip("/")
-SLUG = "checkout-blocker-by-talistech"
+SLUG = "talistech-checkout-blocker-for-woocommerce"
 ENV_ROOT = Path(os.environ.get("TCB_ENV_DIRECTORY", str(ROOT)))
 assert urllib.parse.urlparse(BASE).hostname in ("localhost", "127.0.0.1"), "Checkout checks must target a local environment"
 
 def wp(code):
-    result = subprocess.run([str(ROOT / "node_modules/.bin/wp-env"), "run", "cli", "wp", "eval", code], cwd=ENV_ROOT, text=True, capture_output=True)
+    for attempt in range(3):
+        result = subprocess.run([str(ROOT / "node_modules/.bin/wp-env"), "run", "cli", "wp", "eval", code], cwd=ENV_ROOT, text=True, capture_output=True)
+        # wp-env checks WordPress.org before executing the container command.
+        # Parallel wp-env cache writes can also make its initialization lookup fail.
+        # Retry only errors before PHP starts; never replay a PHP/test failure.
+        pre_execution_errors = ("ERR_SOCKET_CLOSED_BEFORE_CONNECTION", "Environment not initialized. Run `wp-env start` first.")
+        if result.returncode and any(error in result.stdout + result.stderr for error in pre_execution_errors) and attempt < 2:
+            print("Retrying wp-env after a pre-execution tooling failure.", flush=True)
+            continue
+        break
     if result.returncode:
         raise AssertionError(result.stdout + result.stderr)
     for line in result.stdout.splitlines():
@@ -123,7 +137,7 @@ cases = [
     ("account wildcard bypass", {"email_rules": "blocked*@example.com"}, {"email": "different@example.net"}, "tcb-test-customer", True),
 ]
 count = 0
-for hpos in [False, True]:
+for hpos in ([] if arguments.account_checks_only else [False, True]):
     for mode in ["classic", "blocks"]:
         for label, settings, changes, login, blocked in cases:
             configure({**settings, "notice_text": "TCB checkout blocked"}, hpos)
@@ -178,7 +192,7 @@ pay_cases = [
     ("blocked owner signed in elsewhere", {"email_rules": "blocked@example.com"}, {}, "tcb-test-customer", "tcb-test-alt-account", True),
     ("blocked account forced logout", {"email_rules": "blocked@example.com", "force_logout": 1}, {}, "tcb-test-customer", "tcb-test-customer", True),
 ]
-for hpos in [False, True]:
+for hpos in ([] if arguments.account_checks_only else [False, True]):
     for mode in ["classic-pay", "blocks-pay"]:
         for initial_status in ["pending", "failed"]:
             for label, settings, changes, owner, login, blocked in pay_cases:
@@ -232,10 +246,10 @@ for hpos in [False, True]:
 configure({}, True)
 admin_browser = Browser("tcb-test-admin")
 status, headers, page = admin_browser.request("/wp-admin/options-general.php?page=talistech-checkout-blocker")
-assert status == 200 and "Account access" in page and "WooCommerce protection by Talistech" in page
+assert status == 200 and "Account access" in page and "Independent extension for WooCommerce" in page
 count += 1
 status, headers, page = admin_browser.request("/wp-admin/privacy-policy-guide.php")
-assert status == 200 and "Checkout Blocker by Talistech" in page and "keyed IP hashes" in page
+assert status == 200 and "Talistech Checkout Blocker for WooCommerce" in page and "keyed IP hashes" in page
 count += 1
 
 # Force logout is observed via real cookies on a front-end request.
